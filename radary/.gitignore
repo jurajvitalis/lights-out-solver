@@ -1,8 +1,0 @@
-.idea/
-__pycache__/
-build/
-dist/
-
-matplotlibrc
-__main__.spec
-*.rar
