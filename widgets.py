@@ -1,12 +1,17 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore, sip
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget
+
 import constants
 
 import numpy as np
 
-#nastavenie 5x5, 2x3
-x = 2
-y = 3
+# nastavenie 5x5, 2x3
+x = 5
+y = 5
+
+already = 0
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -15,13 +20,73 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle('Lights Out')
 
         self.board = Board()
-        self.setCentralWidget(self.board)
+
+        self.board.won.connect(lambda: self.newGameOption())
+
+        # Create RESET button
+        self.resetBtn = QtWidgets.QPushButton()
+        self.resetBtn.setFixedWidth(100)
+        self.resetBtn.setFixedHeight(50)
+        self.resetBtn.setText('RESET')
+        self.resetBtn.setObjectName('resetBtn')
+        self.resetBtn.clicked.connect(self.resetBtnClicked)
+
+        # Create LAYOUT button
+        self.layoutBtn = QtWidgets.QPushButton()
+        self.layoutBtn.setFixedWidth(100)
+        self.layoutBtn.setFixedHeight(50)
+        self.layoutBtn.setText('LAYOUT')
+        self.layoutBtn.setObjectName('layoutBtn')
+        self.layoutBtn.clicked.connect(self.board.layoutBtnClicked)
+        self.layoutBtn.clicked.connect(self.clicked)
+
+        # Create NEWGAME button
+        self.newGameBtn = QtWidgets.QPushButton()
+        self.newGameBtn.setFixedWidth(100)
+        self.newGameBtn.setFixedHeight(50)
+        self.newGameBtn.setText('NEW GAME')
+        self.newGameBtn.setObjectName('newGameBtn')
+        self.newGameBtn.clicked.connect(self.newGameBtnClicked)
+
+        window = QWidget()
+        self.menuLayout = QtWidgets.QGridLayout(window)
+
+        self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
+        self.menuLayout.addWidget(self.resetBtn, 0, 0)
+        self.menuLayout.addWidget(self.layoutBtn, 0, 2)
+
+        self.setCentralWidget(window)
+
+    def clicked(self):
+        """self.menuLayout.removeWidget(self.board)
+        sip.delete(self.board)
+        self.board = None"""
+        self.board.setParent(None)
+        self.board = Board()
+        self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
+
+    def newGameOption(self):
+        print("new game")
+        self.menuLayout.addWidget(self.newGameBtn, 0, 1)
+
+    def newGameBtnClicked(self):
+        print("new game")
+        self.newGameBtn.setParent(None)
+        self.resetBtnClicked()
+
+    def resetBtnClicked(self):
+        print("reset game")
+        self.board.resetBtnClicked()
 
 
 class Board(QtWidgets.QWidget):
     """Reprezentuje celu hraciu plochu, aj graficku aj maticovu reprezentaciu"""
+
+    won = QtCore.pyqtSignal()
+
     def __init__(self):
         super().__init__()
+
 
         gridLayout = QtWidgets.QGridLayout()
         gridLayout.setSpacing(5)
@@ -82,6 +147,13 @@ class Board(QtWidgets.QWidget):
         arr = np.array(self.matrix)
         print(arr, '\n')
 
+        sum1 = arr.sum()
+        print(sum1, '\n')
+
+        if sum1 == 0:
+            self.won.emit()
+            print("GAME WON")
+
     def initMatrix(self) -> None:
 
         for i in range(0, x):
@@ -89,6 +161,24 @@ class Board(QtWidgets.QWidget):
             for j in range(0, y):
                 new.append(0)
             self.matrix.append(new)
+
+    def layoutBtnClicked(self) -> None:
+
+        global x
+        global y
+
+        if x == 5:
+            x = 2
+            y = 3
+        else:
+            x = 5
+            y = 5
+        print(x)
+        print(y)
+
+    def resetBtnClicked(self):
+
+        print("hello")
 
 
 class Square(QtWidgets.QLabel):
