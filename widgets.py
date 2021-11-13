@@ -15,7 +15,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # Rows, cols su specific pre kazdy board, passujem do constructora
         self.bRows = 5
         self.bCols = 5
-        self.board = Board(self.bCols, self.bRows)
+        self.bPattern = constants.patterns5[0]
+        self.board = Board(self.bRows, self.bCols, self.bPattern)
         self.board.won.connect(lambda: self.newGameOption())
 
         # Create RESET button
@@ -26,13 +27,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resetBtn.setObjectName('resetBtn')
         self.resetBtn.clicked.connect(self.resetBtnClicked)
 
-        # Create LAYOUT button
-        self.layoutBtn = QtWidgets.QPushButton()
-        self.layoutBtn.setFixedWidth(100)
-        self.layoutBtn.setFixedHeight(50)
-        self.layoutBtn.setText('LAYOUT')
-        self.layoutBtn.setObjectName('layoutBtn')
-        self.layoutBtn.clicked.connect(self.layoutBtnClicked)
+        # Create PATTERN ComboBox
+        self.patternCombox = QtWidgets.QComboBox()
+        self.patternCombox.setFixedWidth(125)
+        self.patternCombox.setFixedHeight(25)
+        self.patternCombox.addItem('5x5 - EZ')
+        self.patternCombox.addItem('5x5 - HARD')
+        self.patternCombox.addItem('2x3 - EZ')
+        self.patternCombox.addItem('2x3 - HARD')
+        self.patternCombox.setObjectName('patternBtn')
+        self.patternCombox.currentIndexChanged.connect(self.patternComboxHandler)
 
         # Create NEWGAME button
         self.newGameBtn = QtWidgets.QPushButton()
@@ -47,9 +51,25 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
         self.menuLayout.addWidget(self.resetBtn, 0, 0)
-        self.menuLayout.addWidget(self.layoutBtn, 0, 2)
+        self.menuLayout.addWidget(self.patternCombox, 0, 2)
 
         self.setCentralWidget(window)
+
+    def patternComboxHandler(self, itemID: int) -> None:
+
+        # Zmaz povodny board
+        self.board.setParent(None)
+        sip.delete(self.board)
+
+        # Vytvor novy board
+        patternID = itemID % 2
+        if itemID <= 1:
+            self.board = Board(5, 5, constants.patterns5[patternID])
+        else:
+            self.board = Board(2, 3, constants.patterns3[patternID])
+
+        # Pridaj novy board do layoutu
+        self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
 
     def newGameOption(self):
         print("new game")
@@ -64,26 +84,13 @@ class MainWindow(QtWidgets.QMainWindow):
         print("reset game")
         self.board.resetBtnClicked()
 
-    def layoutBtnClicked(self) -> None:
-
-        if self.bRows == 5:
-            self.bRows = 2
-            self.bCols = 3
-        else:
-            self.bRows = 5
-            self.bCols = 5
-
-        self.board.setParent(None)
-        self.board = Board(self.bRows, self.bCols)
-        self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
-
 
 class Board(QtWidgets.QWidget):
     """Reprezentuje celu hraciu plochu, aj graficku aj maticovu reprezentaciu"""
 
     won = QtCore.pyqtSignal()
 
-    def __init__(self, rows, cols):
+    def __init__(self, rows, cols, pattern):
         super().__init__()
 
         # nastavenie 5x5, 2x3
@@ -92,17 +99,15 @@ class Board(QtWidgets.QWidget):
 
         # Vyber default patternu
         self.curLayout = 0
-        if rows == 5:
-            self.matrix = constants.patterns5[self.curLayout].copy()
-        else:
-            self.matrix = constants.patterns3[self.curLayout].copy()
+        self.matrix = pattern.copy()
 
         gridLayout = QtWidgets.QGridLayout()
         gridLayout.setSpacing(5)
 
         # Pridanie squares do gridLayout
-        for i in range(0, self.rows):
-            for j in range(0, self.cols):
+
+        for i in range(0, rows):
+            for j in range(0, cols):
                 square = Square()
                 if self.matrix[i][j] == 1:
                     square.turnOn()
@@ -161,8 +166,6 @@ class Board(QtWidgets.QWidget):
         if sum1 == 0:
             self.won.emit()
             print("GAME WON")
-
-
 
     def resetBtnClicked(self):
 
