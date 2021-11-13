@@ -4,6 +4,9 @@ import constants
 
 import numpy as np
 
+#nastavenie 5x5, 2x3
+x = 2
+y = 3
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -24,8 +27,8 @@ class Board(QtWidgets.QWidget):
         gridLayout.setSpacing(5)
 
         # Pridanie squares do gridLayout
-        for i in range(0, 5):
-            for j in range(0, 5):
+        for i in range(0, x):
+            for j in range(0, y):
                 square = Square()
                 square.clicked.connect(lambda: self.squareClicked())
                 gridLayout.addWidget(square, i, j)
@@ -50,16 +53,16 @@ class Board(QtWidgets.QWidget):
         # Zisti ktore policka boly affectnute klikom
         squaresAffected = []
 
-        if 0 <= pos[1] - 1 <= 4:
+        if 0 <= pos[1] - 1 <= y - 1:
             squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] - 1).widget())
 
-        if 0 <= pos[1] + 1 <= 4:
+        if 0 <= pos[1] + 1 <= y - 1:
             squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] + 1).widget())
 
-        if 0 <= pos[0] - 1 <= 4:
+        if 0 <= pos[0] - 1 <= x - 1:
             squaresAffected.append(self.layout().itemAtPosition(pos[0] - 1, pos[1]).widget())
 
-        if 0 <= pos[0] + 1 <= 4:
+        if 0 <= pos[0] + 1 <= x - 1:
             squaresAffected.append(self.layout().itemAtPosition(pos[0] + 1, pos[1]).widget())
 
         squaresAffected.append(square)
@@ -80,10 +83,10 @@ class Board(QtWidgets.QWidget):
         print(arr, '\n')
 
     def initMatrix(self) -> None:
-        """Inicializuje maticu na same 0"""
-        for i in range(0, 5):
+
+        for i in range(0, x):
             new = []
-            for j in range(0, 5):
+            for j in range(0, y):
                 new.append(0)
             self.matrix.append(new)
 
