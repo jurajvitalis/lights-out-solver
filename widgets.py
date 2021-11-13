@@ -10,7 +10,9 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
 
         self.setWindowTitle('Lights Out')
-        self.setCentralWidget(Board())
+
+        self.board = Board()
+        self.setCentralWidget(self.board)
 
 
 class Board(QtWidgets.QWidget):
@@ -36,8 +38,8 @@ class Board(QtWidgets.QWidget):
 
     def squareClicked(self) -> None:
         """
-        Click event pre policko.
-        Definovany tu v Board, aby sme vedeli ziskat poziciu Square v Board layoute
+        Click event handler pre square.
+        Definovany tu v Board, aby sme vedeli ziskat poziciu square v board grid layoute.
         """
 
         # Ziskaj square a jeho poziciu v gride
@@ -62,7 +64,7 @@ class Board(QtWidgets.QWidget):
 
         squaresAffected.append(square)
 
-        # Flipni switch pre affektnute policka
+        # Flipni switch pre affektnute policka (Zapni/zhasni svetlo)
         for t in squaresAffected:
             idt = self.layout().indexOf(t)
             post = self.layout().getItemPosition(idt)[:2]
@@ -87,7 +89,9 @@ class Board(QtWidgets.QWidget):
 
 
 class Square(QtWidgets.QLabel):
-    """Reprezentuje jedno policko na hracej ploche"""
+    """Reprezentuje jeden square na hracej ploche"""
+
+    # Definicia signalu, ktory sa vysle pri kliknuti na policko
     clicked = QtCore.pyqtSignal()
 
     def __init__(self):
@@ -102,11 +106,11 @@ class Square(QtWidgets.QLabel):
 
         self.turnOff()
 
-    def turnOn(self):
+    def turnOn(self) -> None:
         self.isOn = 1
         self.drawSquare(Qt.white)
 
-    def turnOff(self):
+    def turnOff(self) -> None:
         self.isOn = 0
         self.drawSquare(Qt.gray)
 
