@@ -21,6 +21,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.board = Board(self.bRows, self.bCols, self.bPattern)
 
         self.board.won.connect(self.gameWonHandler)
+        self.board.clickedSignal.connect(self.updateCount)
 
         # Create RESET button
         self.resetBtn = QtWidgets.QPushButton()
@@ -51,12 +52,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.newGameBtn.hide()
 
         # Create nClicks label
-        self.nClicks = QtWidgets.QLabel()
-        self.nClicks.setFixedWidth(100)
-        self.nClicks.setFixedHeight(50)
-        self.nClicks.setText(str(clickedCounter))
-        self.nClicks.setObjectName('clicked')
-        self.board.clickedSignal.connect(self.addCount)
+        self.nClicksLabel = QtWidgets.QLabel()
+        self.nClicksLabel.setFixedWidth(100)
+        self.nClicksLabel.setFixedHeight(50)
+        self.nClicksLabel.setText(str(clickedCounter))
+        self.nClicksLabel.setObjectName('nClicksLabel')
 
         # Create layout
         window = QWidget()
@@ -65,13 +65,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
         self.menuLayout.addWidget(self.resetBtn, 0, 0)
         self.menuLayout.addWidget(self.patternCombox, 0, 2)
-        self.menuLayout.addWidget(self.nClicks, 2, 1)
+        self.menuLayout.addWidget(self.nClicksLabel, 2, 1)
         self.menuLayout.addWidget(self.newGameBtn, 0, 1)
 
         self.setCentralWidget(window)
 
     def patternComboxHandler(self, itemID: int) -> None:
         """Zmeni board na vybrany board z combo boxu"""
+
+        global clickedCounter
+        clickedCounter = 0
+        self.updateCount()
 
         # Zmaz povodny board
         self.board.setParent(None)
@@ -83,9 +87,11 @@ class MainWindow(QtWidgets.QMainWindow):
         if itemID <= 1:
             self.board = Board(5, 5, constants.patterns5[patternID])
             self.board.won.connect(self.gameWonHandler)
+            self.board.clickedSignal.connect(self.updateCount)
         else:
             self.board = Board(2, 3, constants.patterns3[patternID])
             self.board.won.connect(self.gameWonHandler)
+            self.board.clickedSignal.connect(self.updateCount)
 
         # Pridaj novy board do layoutu
         self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
@@ -93,12 +99,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def resetBtnClicked(self):
         """Vymaze self.board a prida novy fresh (xddd) object"""
 
+        global clickedCounter
+        clickedCounter = 0
+        self.updateCount()
+
         # Vytvor novy board
         newBoard = Board(self.board.rows, self.board.cols, self.board.pattern)
 
         # Signal -> Slot relation musi byt definovany pre kazdy jeden board object!
         # Treba ho teda pridat VZDY PRI RESETOVANI boardu (nie v Board lebo by sme nevedeli callovat newGameBtn)
         newBoard.won.connect(self.gameWonHandler)
+        newBoard.clickedSignal.connect(self.updateCount)
 
         # Zmaz povodny board
         self.board.setParent(None)
@@ -108,8 +119,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.board = newBoard
         self.menuLayout.addWidget(newBoard, 1, 0, 1, 2)
 
-    def addCount(self):
-        self.nClicks.setText(str(clickedCounter))
+    def updateCount(self):
+        self.nClicksLabel.setText(str(clickedCounter))
 
     def gameWonHandler(self):
         self.newGameBtn.show()
