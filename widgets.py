@@ -15,7 +15,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Rows, cols su specific pre kazdy board, passujem do constructora
         self.bRows = 5
         self.bCols = 5
-        self.bPattern = constants.patterns5[0]
+        self.bPattern = constants.patterns5[0].copy()
         self.board = Board(self.bRows, self.bCols, self.bPattern)
         self.board.won.connect(lambda: self.newGameOption())
 
@@ -56,7 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(window)
 
     def patternComboxHandler(self, itemID: int) -> None:
-
+        """Zmeni board na vybrany board z combo boxu"""
         # Zmaz povodny board
         self.board.setParent(None)
         sip.delete(self.board)
@@ -81,8 +81,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resetBtnClicked()
 
     def resetBtnClicked(self):
-        print("reset game")
-        self.board.resetBtnClicked()
+        """Vymaze self.board a prida novy fresh object"""
+
+        # Vytvor novy board
+        newBoard = Board(self.board.rows, self.board.cols, self.board.pattern)
+
+        # Zmaz povodny board
+        self.board.setParent(None)
+        sip.delete(self.board)
+
+        # Pridaj novy board do layoutu
+        self.board = newBoard
+        self.menuLayout.addWidget(newBoard, 1, 0, 1, 2)
 
 
 class Board(QtWidgets.QWidget):
@@ -90,15 +100,13 @@ class Board(QtWidgets.QWidget):
 
     won = QtCore.pyqtSignal()
 
-    def __init__(self, rows, cols, pattern):
+    def __init__(self, rows: int, cols: int, pattern: np.ndarray):
         super().__init__()
 
         # nastavenie 5x5, 2x3
         self.rows = rows
         self.cols = cols
-
-        # Vyber default patternu
-        self.curLayout = 0
+        self.pattern = pattern
         self.matrix = pattern.copy()
 
         gridLayout = QtWidgets.QGridLayout()
@@ -158,18 +166,14 @@ class Board(QtWidgets.QWidget):
                 self.matrix[post[0]][post[1]] = 1
 
         arr = np.array(self.matrix)
-        print(arr, '\n')
+        # print(arr, '\n')
 
         sum1 = arr.sum()
-        print(sum1, '\n')
+        # print(sum1, '\n')
 
         if sum1 == 0:
             self.won.emit()
             print("GAME WON")
-
-    def resetBtnClicked(self):
-
-        print("hello")
 
 
 class Square(QtWidgets.QLabel):
