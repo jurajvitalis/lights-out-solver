@@ -57,17 +57,24 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nClicksLabel.setFixedHeight(50)
         self.nClicksLabel.setText(str(clickedCounter))
         self.nClicksLabel.setObjectName('nClicksLabel')
+        self.nClicksLabel.setAlignment(Qt.AlignCenter)
 
         # Create layout
+
+        # Top layout
+        self.topMenuLayout = QtWidgets.QHBoxLayout()
+        self.topMenuLayout.addWidget(self.resetBtn, alignment=Qt.AlignLeft)
+        self.topMenuLayout.addWidget(self.newGameBtn, alignment=Qt.AlignCenter)
+        self.topMenuLayout.addWidget(self.patternCombox, alignment=Qt.AlignRight)
+
+        # Vertical layout
+        self.windowLayout = QtWidgets.QVBoxLayout()
+        self.windowLayout.addLayout(self.topMenuLayout)
+        self.windowLayout.addWidget(self.board)
+        self.windowLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignCenter)
+
         window = QWidget()
-        self.menuLayout = QtWidgets.QGridLayout(window)
-
-        self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
-        self.menuLayout.addWidget(self.resetBtn, 0, 0)
-        self.menuLayout.addWidget(self.patternCombox, 0, 2)
-        self.menuLayout.addWidget(self.nClicksLabel, 2, 1)
-        self.menuLayout.addWidget(self.newGameBtn, 0, 1)
-
+        window.setLayout(self.windowLayout)
         self.setCentralWidget(window)
 
     def patternComboxHandler(self, itemID: int) -> None:
@@ -93,8 +100,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.board.won.connect(self.gameWonHandler)
             self.board.clickedSignal.connect(self.updateCount)
 
+            for i in range(0, 10):
+                QtWidgets.QApplication.processEvents()
+
+            self.resize(self.minimumSizeHint())
+
         # Pridaj novy board do layoutu
-        self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
+        self.windowLayout.insertWidget(1, self.board)
 
     def resetBtnClicked(self):
         """Vymaze self.board a prida novy fresh (xddd) object"""
@@ -117,7 +129,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Pridaj novy board do layoutu
         self.board = newBoard
-        self.menuLayout.addWidget(newBoard, 1, 0, 1, 2)
+        self.windowLayout.insertWidget(1, self.board)
 
     def updateCount(self):
         self.nClicksLabel.setText(str(clickedCounter))
