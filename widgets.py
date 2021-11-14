@@ -159,7 +159,8 @@ class Board(QtWidgets.QWidget):
         self.matrix = pattern.copy()
 
         gridLayout = QtWidgets.QGridLayout()
-        gridLayout.setSpacing(5)
+        gridLayout.setSpacing(2)
+        gridLayout.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
 
         # Pridanie squares do gridLayout
 
