@@ -3,8 +3,12 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 import numpy as np
 
+from datetime import datetime
+import time
+
 import constants
 
+clickedCounter = 0
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -17,6 +21,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bCols = 5
         self.bPattern = constants.patterns5[0].copy()
         self.board = Board(self.bRows, self.bCols, self.bPattern)
+        self.board.won.connect(lambda: print("???"))
         self.board.won.connect(lambda: self.newGameOption())
 
         # Create RESET button
@@ -31,9 +36,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.patternCombox = QtWidgets.QComboBox()
         self.patternCombox.setFixedWidth(125)
         self.patternCombox.setFixedHeight(25)
-        self.patternCombox.addItem('5x5 - EZ')
+        self.patternCombox.addItem('5x5 - EASY')
         self.patternCombox.addItem('5x5 - HARD')
-        self.patternCombox.addItem('2x3 - EZ')
+        self.patternCombox.addItem('2x3 - EASY')
         self.patternCombox.addItem('2x3 - HARD')
         self.patternCombox.setObjectName('patternBtn')
         self.patternCombox.currentIndexChanged.connect(self.patternComboxHandler)
@@ -46,12 +51,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.newGameBtn.setObjectName('newGameBtn')
         self.newGameBtn.clicked.connect(self.newGameBtnClicked)
 
+        self.clicked = QtWidgets.QLabel()
+        self.clicked.setFixedWidth(100)
+        self.clicked.setFixedHeight(50)
+        self.clicked.setText(str(clickedCounter))
+        self.clicked.setObjectName('clicked')
+        self.board.clickedSignal.connect(self.addCount)
+
         window = QWidget()
         self.menuLayout = QtWidgets.QGridLayout(window)
 
         self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
         self.menuLayout.addWidget(self.resetBtn, 0, 0)
         self.menuLayout.addWidget(self.patternCombox, 0, 2)
+        self.menuLayout.addWidget(self.clicked, 2, 1)
 
         self.setCentralWidget(window)
 
@@ -62,6 +75,7 @@ class MainWindow(QtWidgets.QMainWindow):
         sip.delete(self.board)
 
         # Vytvor novy board
+        clickedCounter = 0
         patternID = itemID % 2
         if itemID <= 1:
             self.board = Board(5, 5, constants.patterns5[patternID])
@@ -72,16 +86,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menuLayout.addWidget(self.board, 1, 0, 1, 2)
 
     def newGameOption(self):
-        print("new game")
         self.menuLayout.addWidget(self.newGameBtn, 0, 1)
 
     def newGameBtnClicked(self):
-        print("new game")
         self.newGameBtn.setParent(None)
+        sip.delete(self.newGameBtn)
         self.resetBtnClicked()
 
     def resetBtnClicked(self):
-        """Vymaze self.board a prida novy fresh object"""
+        """Vymaze self.board a prida novy fresh (xddd) object"""
 
         # Vytvor novy board
         newBoard = Board(self.board.rows, self.board.cols, self.board.pattern)
@@ -94,11 +107,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.board = newBoard
         self.menuLayout.addWidget(newBoard, 1, 0, 1, 2)
 
+    def addCount(self):
+        self.clicked.setText(str(clickedCounter))
+        print("tu")
+
 
 class Board(QtWidgets.QWidget):
     """Reprezentuje celu hraciu plochu, aj graficku aj maticovu reprezentaciu"""
 
     won = QtCore.pyqtSignal()
+    clickedSignal = QtCore.pyqtSignal()
 
     def __init__(self, rows: int, cols: int, pattern: np.ndarray):
         super().__init__()
@@ -130,6 +148,10 @@ class Board(QtWidgets.QWidget):
         Click event handler pre square.
         Definovany tu v Board, aby sme vedeli ziskat poziciu square v board grid layoute.
         """
+        global clickedCounter
+        clickedCounter = clickedCounter + 1
+        self.clickedSignal.emit()
+        print(clickedCounter)
 
         # Ziskaj square a jeho poziciu v gride
         square = self.sender()
@@ -169,11 +191,12 @@ class Board(QtWidgets.QWidget):
         # print(arr, '\n')
 
         sum1 = arr.sum()
-        # print(sum1, '\n')
+        print(sum1, '\n')
 
         if sum1 == 0:
+            print(":(")
             self.won.emit()
-            print("GAME WON")
+            clickedCounter = 0
 
 
 class Square(QtWidgets.QLabel):
