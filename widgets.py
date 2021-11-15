@@ -55,7 +55,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nClicksLabel = QtWidgets.QLabel()
         self.nClicksLabel.setFixedWidth(100)
         self.nClicksLabel.setFixedHeight(50)
-        self.nClicksLabel.setText(str(clickedCounter))
+        self.nClicksLabel.setText("Moves: " + str(clickedCounter))
         self.nClicksLabel.setObjectName('nClicksLabel')
         self.nClicksLabel.setAlignment(Qt.AlignCenter)
 
@@ -106,7 +106,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.resize(self.minimumSizeHint())
 
         # Pridaj novy board do layoutu
-        self.windowLayout.insertWidget(1, self.board)
+        self.windowLayout.insertWidget(1, self.board, alignment=Qt.AlignCenter)
 
     def resetBtnClicked(self):
         """Vymaze self.board a prida novy fresh (xddd) object"""
@@ -121,7 +121,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # Signal -> Slot relation musi byt definovany pre kazdy jeden board object!
         # Treba ho teda pridat VZDY PRI RESETOVANI boardu (nie v Board lebo by sme nevedeli callovat newGameBtn)
         newBoard.won.connect(self.gameWonHandler)
-        self.windowLayout.addWidget(self.board, alignment=Qt.AlignCenter)
         newBoard.clickedSignal.connect(self.updateCount)
 
         # Zmaz povodny board
@@ -130,14 +129,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Pridaj novy board do layoutu
         self.board = newBoard
-        self.windowLayout.insertWidget(1, self.board)
+        self.windowLayout.insertWidget(1, self.board, alignment=Qt.AlignCenter)
 
     def updateCount(self):
-        self.nClicksLabel.setText(str(clickedCounter))
+        self.nClicksLabel.setText("Moves: " + str(clickedCounter))
 
     def gameWonHandler(self):
         self.newGameBtn.show()
-        self.windowLayout.addWidget(self.board, alignment=Qt.AlignCenter)
         print('GG')
 
     def newGameBtnClicked(self):
