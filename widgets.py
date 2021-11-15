@@ -70,7 +70,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Vertical layout
         self.windowLayout = QtWidgets.QVBoxLayout()
         self.windowLayout.addLayout(self.topMenuLayout)
-        self.windowLayout.addWidget(self.board)
+        self.windowLayout.addWidget(self.board, alignment=Qt.AlignCenter)
         self.windowLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignCenter)
 
         window = QWidget()
@@ -121,6 +121,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Signal -> Slot relation musi byt definovany pre kazdy jeden board object!
         # Treba ho teda pridat VZDY PRI RESETOVANI boardu (nie v Board lebo by sme nevedeli callovat newGameBtn)
         newBoard.won.connect(self.gameWonHandler)
+        self.windowLayout.addWidget(self.board, alignment=Qt.AlignCenter)
         newBoard.clickedSignal.connect(self.updateCount)
 
         # Zmaz povodny board
@@ -136,6 +137,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def gameWonHandler(self):
         self.newGameBtn.show()
+        self.windowLayout.addWidget(self.board, alignment=Qt.AlignCenter)
         print('GG')
 
     def newGameBtnClicked(self):
