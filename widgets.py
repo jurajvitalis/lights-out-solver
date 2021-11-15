@@ -1,3 +1,5 @@
+import math
+
 from PyQt5 import QtWidgets, QtGui, QtCore, sip
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
@@ -156,11 +158,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.timerStart is not None:
             timerEnd = timer()
             timeElapsed = timerEnd - self.timerStart
-            self.timerLabel.setText("%.2f sec" % round(timeElapsed, 2))
+
+            seconds = int(round(timeElapsed % 60, 0))
+            minutes = math.floor(timeElapsed / 60)
+            self.timerLabel.setText(f'{minutes}:{seconds:02d}')
 
     def resetTimer(self):
         self.timerStart = timer()
-        self.timerLabel.setText('0.00 sec')
+        self.timerLabel.setText('0. sec')
         self.timer.start()
 
     def updateCount(self):
@@ -168,6 +173,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def gameWonHandler(self):
         self.newGameBtn.show()
+        self.timer.stop()
         print('GG')
 
     def newGameBtnClicked(self):
