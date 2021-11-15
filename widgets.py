@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore, sip
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 import numpy as np
+from timeit import default_timer as timer
 
 import constants
 
@@ -59,6 +60,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nClicksLabel.setObjectName('nClicksLabel')
         self.nClicksLabel.setAlignment(Qt.AlignCenter)
 
+        # Timer label
+        self.timerLabel = QtWidgets.QLabel(f'{0} sec')
+
+        # Timer pre updatovanie labelu
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.showTimeElapsed)
+        self.timer.start(constants.TICKRATE)
+        self.timerStart = None
+
         # Create layout
 
         # Top layout
@@ -67,15 +77,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.topMenuLayout.addWidget(self.newGameBtn, alignment=Qt.AlignCenter)
         self.topMenuLayout.addWidget(self.patternCombox, alignment=Qt.AlignRight)
 
+        # Bottom layout
+        self.bottomLayout = QtWidgets.QHBoxLayout()
+        self.bottomLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignLeft)
+        self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
+
         # Vertical layout
         self.windowLayout = QtWidgets.QVBoxLayout()
         self.windowLayout.addLayout(self.topMenuLayout)
         self.windowLayout.addWidget(self.board, alignment=Qt.AlignCenter)
-        self.windowLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignCenter)
+        self.windowLayout.addLayout(self.bottomLayout)
 
         window = QWidget()
         window.setLayout(self.windowLayout)
         self.setCentralWidget(window)
+
+        self.timerStart = timer()
 
     def patternComboxHandler(self, itemID: int) -> None:
         """Zmeni board na vybrany board z combo boxu"""
@@ -83,6 +100,8 @@ class MainWindow(QtWidgets.QMainWindow):
         global clickedCounter
         clickedCounter = 0
         self.updateCount()
+
+        self.resetTimer()
 
         # Zmaz povodny board
         self.board.setParent(None)
@@ -115,6 +134,8 @@ class MainWindow(QtWidgets.QMainWindow):
         clickedCounter = 0
         self.updateCount()
 
+        self.resetTimer()
+
         # Vytvor novy board
         newBoard = Board(self.board.rows, self.board.cols, self.board.pattern)
 
@@ -132,17 +153,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.board = newBoard
         self.windowLayout.insertWidget(1, self.board)
 
+    def showTimeElapsed(self):
+        if self.timerStart is not None:
+            timerEnd = timer()
+            timeElapsed = timerEnd - self.timerStart
+            self.timerLabel.setText("%.2f sec" % round(timeElapsed, 2))
+
+    def resetTimer(self):
+        self.timerStart = timer()
+        self.timerLabel.setText('0.00 sec')
+        self.timer.start()
+
     def updateCount(self):
         self.nClicksLabel.setText(str(clickedCounter))
 
     def gameWonHandler(self):
         self.newGameBtn.show()
         self.windowLayout.addWidget(self.board, alignment=Qt.AlignCenter)
+        self.timer.stop()
         print('GG')
 
     def newGameBtnClicked(self):
         self.newGameBtn.hide()
         self.resetBtnClicked()
+        self.timer.start()
 
 
 class Board(QtWidgets.QWidget):
@@ -182,6 +216,7 @@ class Board(QtWidgets.QWidget):
         Click event handler pre square.
         Definovany tu v Board, aby sme vedeli ziskat poziciu square v board grid layoute.
         """
+
         global clickedCounter
         clickedCounter = clickedCounter + 1
         self.clickedSignal.emit()
