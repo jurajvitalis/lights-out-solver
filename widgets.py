@@ -268,6 +268,59 @@ class Board(QtWidgets.QWidget):
             self.won.emit()
             clickedCounter = 0
 
+    def algorender(self, listofsteps) -> None:
+
+        #list of steps je 2d = [row, col]
+        #                      [row, col]
+
+        for i in listofsteps:
+
+            #square = self.sender() toto nemam nanestastie
+            square = z listu?
+            idx = self.layout().indexOf(square)
+            pos = self.layout().getItemPosition(idx)[:2]
+
+            # Zisti ktore policka boly affectnute klikom
+            squaresAffected = []
+
+            if 0 <= pos[1] - 1 <= self.cols - 1:
+                squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] - 1).widget())
+
+            if 0 <= pos[1] + 1 <= self.cols - 1:
+                squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] + 1).widget())
+
+            if 0 <= pos[0] - 1 <= self.rows - 1:
+                squaresAffected.append(self.layout().itemAtPosition(pos[0] - 1, pos[1]).widget())
+
+            if 0 <= pos[0] + 1 <= self.rows - 1:
+                squaresAffected.append(self.layout().itemAtPosition(pos[0] + 1, pos[1]).widget())
+
+            squaresAffected.append(square)
+
+            # Flipni switch pre affektnute policka (Zapni/zhasni svetlo)
+            for t in squaresAffected:
+                idt = self.layout().indexOf(t)
+                post = self.layout().getItemPosition(idt)[:2]
+
+                if t.isOn:
+                    t.turnOff()
+                    self.matrix[post[0]][post[1]] = 0
+                else:
+                    t.turnOn()
+                    self.matrix[post[0]][post[1]] = 1
+
+            arr = np.array(self.matrix)
+            # print(arr, '\n')
+
+            sum1 = arr.sum()
+            # print(sum1, '\n')
+
+            if sum1 == 0:
+                self.won.emit()
+                clickedCounter = 0
+
+
+
 
 class Square(QtWidgets.QLabel):
     """Reprezentuje jeden square na hracej ploche"""
