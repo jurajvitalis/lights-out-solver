@@ -229,7 +229,7 @@ class Board(QtWidgets.QWidget):
         idx = self.layout().indexOf(square)
         pos = self.layout().getItemPosition(idx)[:2]
 
-        # Zisti ktore policka boly affectnute klikom
+        # Zisti ktore policka boli affectnute klikom
         squaresAffected = []
 
         if 0 <= pos[1] - 1 <= self.cols - 1:
@@ -260,6 +260,8 @@ class Board(QtWidgets.QWidget):
 
         arr = np.array(self.matrix)
         # print(arr, '\n')
+
+        print(arr)
 
         sum1 = arr.sum()
         # print(sum1, '\n')
