@@ -3,6 +3,7 @@ import math
 from PyQt5 import QtWidgets, QtGui, QtCore, sip
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
+from PyQt5 import QtTest
 import numpy as np
 from timeit import default_timer as timer
 
@@ -62,6 +63,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nClicksLabel.setObjectName('nClicksLabel')
         self.nClicksLabel.setAlignment(Qt.AlignCenter)
 
+        # Create algoRender button
+        self.algoRenderBtn = QtWidgets.QPushButton()
+        self.algoRenderBtn.setFixedWidth(100)
+        self.algoRenderBtn.setFixedHeight(50)
+        self.algoRenderBtn.setText('algoRender')
+        self.algoRenderBtn.setObjectName('algoRenderBtn')
+        self.algoRenderBtn.clicked.connect(self.solveDFSBtnClicked)
+
         # Timer label
         self.timerLabel = QtWidgets.QLabel(f'{0} sec')
 
@@ -82,6 +91,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Bottom layout
         self.bottomLayout = QtWidgets.QHBoxLayout()
         self.bottomLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignLeft)
+        self.bottomLayout.addWidget(self.algoRenderBtn, alignment=Qt.AlignCenter)
         self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
 
         # Vertical layout
@@ -181,6 +191,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resetBtnClicked()
         self.timer.start()
 
+    def solveDFSBtnClicked(self):
+        self.board.algoRender([(0, 0), (1, 1), (2, 2), (4, 4)], 300)
+
 
 class Board(QtWidgets.QWidget):
     """Reprezentuje celu hraciu plochu, aj graficku aj maticovu reprezentaciu"""
@@ -229,7 +242,7 @@ class Board(QtWidgets.QWidget):
         idx = self.layout().indexOf(square)
         pos = self.layout().getItemPosition(idx)[:2]
 
-        # Zisti ktore policka boly affectnute klikom
+        # Zisti ktore policka boli affectnute klikom
         squaresAffected = []
 
         if 0 <= pos[1] - 1 <= self.cols - 1:
@@ -259,14 +272,55 @@ class Board(QtWidgets.QWidget):
                 self.matrix[post[0]][post[1]] = 1
 
         arr = np.array(self.matrix)
-        # print(arr, '\n')
-
         sum1 = arr.sum()
-        # print(sum1, '\n')
 
         if sum1 == 0:
             self.won.emit()
             clickedCounter = 0
+
+    def algoRender(self, listofsteps: list, ms: int) -> None:
+
+        for i in listofsteps:
+
+            QtTest.QTest.qWait(ms)
+
+            pos = i
+
+            # Zisti ktore policka boly affectnute klikom
+            squaresAffected = []
+
+            if 0 <= pos[1] - 1 <= self.cols - 1:
+                squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] - 1).widget())
+
+            if 0 <= pos[1] + 1 <= self.cols - 1:
+                squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] + 1).widget())
+
+            if 0 <= pos[0] - 1 <= self.rows - 1:
+                squaresAffected.append(self.layout().itemAtPosition(pos[0] - 1, pos[1]).widget())
+
+            if 0 <= pos[0] + 1 <= self.rows - 1:
+                squaresAffected.append(self.layout().itemAtPosition(pos[0] + 1, pos[1]).widget())
+
+            squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1]).widget())
+
+            # Flipni switch pre affektnute policka (Zapni/zhasni svetlo)
+            for t in squaresAffected:
+                idt = self.layout().indexOf(t)
+                post = self.layout().getItemPosition(idt)[:2]
+
+                if t.isOn:
+                    t.turnOff()
+                    self.matrix[post[0]][post[1]] = 0
+                else:
+                    t.turnOn()
+                    self.matrix[post[0]][post[1]] = 1
+
+            arr = np.array(self.matrix)
+            sum1 = arr.sum()
+
+            if sum1 == 0:
+                self.won.emit()
+                clickedCounter = 0
 
 
 class Square(QtWidgets.QLabel):
