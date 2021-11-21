@@ -39,29 +39,41 @@ class Node:
         listOfTiles = [tiles]
         finalList = []
 
+        explored = []
+
         while not self.isSolved():
             print(":(")
-            correctRow = 0  # tile s ktorou budeme hrat
-            correctCol = 0
+            correctRow = -1  # tile s ktorou budeme hrat
+            correctCol = -1
             numberOfLights = 10  # jej cislo svietiacich tiles
 
             print(listOfTiles[0])
-            #print(len(listOfTiles[0]))
+            print(len(listOfTiles[0]))
+            x = 0
+            if len(listOfTiles[0] == 2):
+                x = 3
+            else:
+                x = 5
 
             # cyklus na prejdenie 2d pola s tiles
             for i in range(len(listOfTiles[0])):
-                for j in range(len(listOfTiles[0])):
+                for j in range(x):
 
-                    #print(self.stateLights.sum())
+                    tile = (i, j)
+                    print(tile)
+                    print(explored)
+                  #  if not (tile in explored):
+
+                    # print(self.stateLights.sum())
                     # vykonanie zapnutia tile
                     self.move(i, j)
-                    #print(self.stateLights.sum())
-                    #print(numberOfLights)
+                    # print(self.stateLights.sum())
+                    # print(numberOfLights)
                     # porovnanie s predchadajucou
                     if self.stateLights.sum() < numberOfLights:
-                        #print("yo")
+                        print("yo")
                         numberOfLights = self.stateLights.sum()
-                        #print(numberOfLights)
+                        # print(numberOfLights)
                         # ak po nej ostane menej svietiacich, stava sa correct tile a zapiseme kde je v poli
                         correctRow = i
                         correctCol = j
@@ -71,17 +83,23 @@ class Node:
 
             # ked prejde vsetky, pozname uz correct tile a mozme s nou urobit zmenu
 
-            self.move(correctRow, correctCol)
+            print(correctRow)
+            print(correctCol)
+            if correctRow != -1 and correctCol != -1:
+                print("hahah")
+                self.move(correctRow, correctCol)
 
-            correctTile = (correctRow, correctCol)
-            finalList.append(correctTile)
+                correctTile = (correctRow, correctCol)
+                finalList.append(correctTile)
+                explored.append(correctTile)
+
             print(finalList)
 
         return finalList
 
 
 if __name__ == '__main__':
-    starttNode = Node(stateLights=constants.patterns5[1], stateSwitches=np.zeros((5, 5), int), parent=None, action=None)
+    starttNode = Node(stateLights=constants.patterns3[0], stateSwitches=np.zeros((5, 5), int), parent=None, action=None)
     solution = starttNode.greedy(starttNode.stateLights)
 
     print('Solution\n')
