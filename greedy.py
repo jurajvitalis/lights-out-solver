@@ -34,39 +34,48 @@ class Node:
                 else:
                     self.stateLights[r][c] = True
 
+    def greedy(self, tiles) -> tuple:
+        listOfTiles = [tiles]
+        rows = []
+        cols = []
 
-def greedy(tiles: List) -> list:
+        while not self.isSolved():
 
-    listOfTiles = [tiles]
-    rows = []
-    cols = []
+            correctRow = 0  # tile s ktorou budeme hrat
+            correctCol = 0
+            numberOfLights = 10  # jej cislo svietiacich tiles
 
-    while isSolved == false:
+            # cyklus na prejdenie 2d pola s tiles
+            for i in listOfTiles:
+                for j in listOfTiles:
 
-        correctRow = 0  # tile s ktorou budeme hrat
-        correctCol = 0
-        numberOfLights = 10  # jej cislo svietiacich tiles
+                    # vykonanie zapnutia tile
+                    self.move(i, j)
 
-        # cyklus na prejdenie 2d pola s tiles
-        for i in listOfTiles:
-            for j in listOfTiles:
+                    # porovnanie s predchadajucou
+                    if self.stateLights.sum() < numberOfLights:
+                        numberOfLights = self.stateLights.sum()
+                        # ak po nej ostane menej svietiacich, stava sa correct tile a zapiseme kde je v poli
+                        correctRow = i
+                        correctCol = j
 
-                # vykonanie zapnutia tile
-                move(i, j)
+                    # vratenie do povodneho stavu
+                    self.move(i, j)
 
-                # porovnanie s predchadajucou
-                if self.stateLights.sum() < numberOfLights:
-                    numberOfLights = stateLights.sum()
-                    # ak po nej ostane menej svietiacich, stava sa correct tile a zapiseme kde je v poli
-                    correctRow = i
-                    correctCol = j
+            # ked prejde vsetky, pozname uz correct tile a mozme s nou urobit zmenu
 
-                # vratenie do povodneho stavu
-                move(i, j)
+            self.move(correctRow, correctCol)
 
-        # ked prejde vsetky, pozname uz correct tile a mozme s nou urobit zmenu
+            rows.append(correctRow)
+            cols.append(correctCol)
 
-        move(correctRow, correctCol)
+        return rows, cols
 
-        rows.append(correctRow)
-        cols.append(correctCol)
+
+if __name__ == '__main__':
+    starttNode = Node(stateLights=constants.patterns5[0], stateSwitches=np.zeros((5, 5), int), parent=None, action=None)
+    solution = starttNode.greedy(starttNode.stateLights)
+
+    print('Solution\n')
+    print(f'moves: {solution[0]}')
+    print(f'flipped: \n{solution[1]}')

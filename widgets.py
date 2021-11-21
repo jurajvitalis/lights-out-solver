@@ -275,10 +275,7 @@ class Board(QtWidgets.QWidget):
 
         for i in listofsteps:
 
-            #square = self.sender() toto nemam nanestastie
-            square = z listu?
-            idx = self.layout().indexOf(square)
-            pos = self.layout().getItemPosition(idx)[:2]
+            pos = listofsteps[i]
 
             # Zisti ktore policka boly affectnute klikom
             squaresAffected = []
@@ -295,7 +292,7 @@ class Board(QtWidgets.QWidget):
             if 0 <= pos[0] + 1 <= self.rows - 1:
                 squaresAffected.append(self.layout().itemAtPosition(pos[0] + 1, pos[1]).widget())
 
-            squaresAffected.append(square)
+            squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1]).widget())
 
             # Flipni switch pre affektnute policka (Zapni/zhasni svetlo)
             for t in squaresAffected:
