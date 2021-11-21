@@ -34,27 +34,34 @@ class Node:
                 else:
                     self.stateLights[r][c] = True
 
-    def greedy(self, tiles) -> tuple:
+    def greedy(self, tiles) -> list:
+
         listOfTiles = [tiles]
-        rows = []
-        cols = []
+        finalList = []
 
         while not self.isSolved():
-
+            print(":(")
             correctRow = 0  # tile s ktorou budeme hrat
             correctCol = 0
             numberOfLights = 10  # jej cislo svietiacich tiles
 
-            # cyklus na prejdenie 2d pola s tiles
-            for i in listOfTiles:
-                for j in listOfTiles:
+            print(listOfTiles[0])
+            #print(len(listOfTiles[0]))
 
+            # cyklus na prejdenie 2d pola s tiles
+            for i in range(len(listOfTiles[0])):
+                for j in range(len(listOfTiles[0])):
+
+                    #print(self.stateLights.sum())
                     # vykonanie zapnutia tile
                     self.move(i, j)
-
+                    #print(self.stateLights.sum())
+                    #print(numberOfLights)
                     # porovnanie s predchadajucou
                     if self.stateLights.sum() < numberOfLights:
+                        #print("yo")
                         numberOfLights = self.stateLights.sum()
+                        #print(numberOfLights)
                         # ak po nej ostane menej svietiacich, stava sa correct tile a zapiseme kde je v poli
                         correctRow = i
                         correctCol = j
@@ -66,14 +73,15 @@ class Node:
 
             self.move(correctRow, correctCol)
 
-            rows.append(correctRow)
-            cols.append(correctCol)
+            correctTile = (correctRow, correctCol)
+            finalList.append(correctTile)
+            print(finalList)
 
-        return rows, cols
+        return finalList
 
 
 if __name__ == '__main__':
-    starttNode = Node(stateLights=constants.patterns5[0], stateSwitches=np.zeros((5, 5), int), parent=None, action=None)
+    starttNode = Node(stateLights=constants.patterns5[1], stateSwitches=np.zeros((5, 5), int), parent=None, action=None)
     solution = starttNode.greedy(starttNode.stateLights)
 
     print('Solution\n')
