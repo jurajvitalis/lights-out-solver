@@ -93,13 +93,16 @@ class Node:
                 finalList.append(correctTile)
                 explored.append(correctTile)
 
+            if len(explored) == pow(len(listOfTiles[0]), x):
+                explored = []
+
             print(finalList)
 
         return finalList
 
 
 if __name__ == '__main__':
-    starttNode = Node(stateLights=constants.patterns3[0], stateSwitches=np.zeros((5, 5), int), parent=None, action=None)
+    starttNode = Node(stateLights=constants.patterns3[3], stateSwitches=np.zeros((5, 5), int), parent=None, action=None)
     solution = starttNode.greedy(starttNode.stateLights)
 
     print('Solution\n')
