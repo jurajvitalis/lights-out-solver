@@ -9,6 +9,7 @@ from timeit import default_timer as timer
 
 import constants
 import brute_force
+import greedy
 
 clickedCounter = 0
 
@@ -80,6 +81,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solveBFSBtn.setObjectName('algoRenderBtn')
         self.solveBFSBtn.clicked.connect(self.solveBFSBtnClicked)
 
+        # Create Solve BFS button
+        self.solveGreedyBtn = QtWidgets.QPushButton()
+        self.solveGreedyBtn.setFixedWidth(150)
+        self.solveGreedyBtn.setFixedHeight(50)
+        self.solveGreedyBtn.setText('Solve - Greedy')
+        self.solveGreedyBtn.setObjectName('algoRenderBtn')
+        self.solveGreedyBtn.clicked.connect(self.solveGreedyBtnClicked)
+
         # Timer label
         self.timerLabel = QtWidgets.QLabel(f'{0} sec')
 
@@ -102,6 +111,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bottomLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignLeft)
         self.bottomLayout.addWidget(self.solveDFSBtn, alignment=Qt.AlignCenter)
         self.bottomLayout.addWidget(self.solveBFSBtn, alignment=Qt.AlignCenter)
+        self.bottomLayout.addWidget(self.solveGreedyBtn, alignment=Qt.AlignCenter)
         # self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
 
         # Vertical layout
@@ -201,7 +211,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start()
 
     def solveDFSBtnClicked(self):
-        startNode = brute_force.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
+        startNode = brute_force.Node(stateLights=self.board.matrix,
+                                     stateSwitches=np.zeros(self.board.pattern.shape, int),
                                      parent=None, action=None)
         sol = brute_force.dfsSolve(startNode)
         self.board.algoRender(sol, 500)
@@ -214,9 +225,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.updateCount()
 
     def solveBFSBtnClicked(self):
-        startNode = brute_force.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
+        startNode = brute_force.Node(stateLights=self.board.matrix,
+                                     stateSwitches=np.zeros(self.board.pattern.shape, int),
                                      parent=None, action=None)
         sol = brute_force.bfsSolve(startNode)
+        self.board.algoRender(sol, 500)
+        print(f'Number of steps: {len(sol)}')
+        print(f'Steps: {sol}')
+        print()
+
+        global clickedCounter
+        clickedCounter += len(sol)
+        self.updateCount()
+
+    def solveGreedyBtnClicked(self):
+        startNode = greedy.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
+                                parent=None, action=None)
+        sol = startNode.greedy(startNode.stateLights)
         self.board.algoRender(sol, 500)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')

@@ -42,13 +42,13 @@ class Node:
         explored = []
 
         while not self.isSolved():
-            print(":(")
+
             correctRow = -1  # tile s ktorou budeme hrat
             correctCol = -1
             numberOfLights = 10  # jej cislo svietiacich tiles
-
-            print(listOfTiles[0])
-            print(len(listOfTiles[0]))
+            #
+            # print(listOfTiles[0])
+            # print(len(listOfTiles[0]))
             x = 0
             if len(listOfTiles[0] == 2):
                 x = 3
@@ -60,8 +60,8 @@ class Node:
                 for j in range(x):
 
                     tile = (i, j)
-                    print(tile)
-                    print(explored)
+                    # print(tile)
+                    # print(explored)
                   #  if not (tile in explored):
 
                     # print(self.stateLights.sum())
@@ -71,7 +71,7 @@ class Node:
                     # print(numberOfLights)
                     # porovnanie s predchadajucou
                     if self.stateLights.sum() < numberOfLights:
-                        print("yo")
+                        # print("yo")
                         numberOfLights = self.stateLights.sum()
                         # print(numberOfLights)
                         # ak po nej ostane menej svietiacich, stava sa correct tile a zapiseme kde je v poli
@@ -83,10 +83,10 @@ class Node:
 
             # ked prejde vsetky, pozname uz correct tile a mozme s nou urobit zmenu
 
-            print(correctRow)
-            print(correctCol)
+            # print(correctRow)
+            # print(correctCol)
             if correctRow != -1 and correctCol != -1:
-                print("hahah")
+
                 self.move(correctRow, correctCol)
 
                 correctTile = (correctRow, correctCol)
@@ -96,15 +96,14 @@ class Node:
             if len(explored) == pow(len(listOfTiles[0]), x):
                 explored = []
 
-            print(finalList)
+            # print(finalList)
 
         return finalList
 
 
 if __name__ == '__main__':
-    starttNode = Node(stateLights=constants.patterns3[3], stateSwitches=np.zeros((5, 5), int), parent=None, action=None)
+    starttNode = Node(stateLights=constants.patterns3[0], stateSwitches=np.zeros((5, 5), int), parent=None, action=None)
     solution = starttNode.greedy(starttNode.stateLights)
 
     print('Solution\n')
     print(f'moves: {solution[0]}')
-    print(f'flipped: \n{solution[1]}')
