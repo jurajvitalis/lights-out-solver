@@ -8,6 +8,7 @@ import numpy as np
 from timeit import default_timer as timer
 
 import constants
+import brute_force
 
 clickedCounter = 0
 
@@ -63,13 +64,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.nClicksLabel.setObjectName('nClicksLabel')
         self.nClicksLabel.setAlignment(Qt.AlignCenter)
 
-        # Create algoRender button
-        self.algoRenderBtn = QtWidgets.QPushButton()
-        self.algoRenderBtn.setFixedWidth(100)
-        self.algoRenderBtn.setFixedHeight(50)
-        self.algoRenderBtn.setText('algoRender')
-        self.algoRenderBtn.setObjectName('algoRenderBtn')
-        self.algoRenderBtn.clicked.connect(self.solveDFSBtnClicked)
+        # Create Solve DFS button
+        self.solveDFSBtn = QtWidgets.QPushButton()
+        self.solveDFSBtn.setFixedWidth(100)
+        self.solveDFSBtn.setFixedHeight(50)
+        self.solveDFSBtn.setText('Solve - DFS')
+        self.solveDFSBtn.setObjectName('algoRenderBtn')
+        self.solveDFSBtn.clicked.connect(self.solveDFSBtnClicked)
+
+        # Create Solve BFS button
+        self.solveBFSBtn = QtWidgets.QPushButton()
+        self.solveBFSBtn.setFixedWidth(100)
+        self.solveBFSBtn.setFixedHeight(50)
+        self.solveBFSBtn.setText('Solve - BFS')
+        self.solveBFSBtn.setObjectName('algoRenderBtn')
+        self.solveBFSBtn.clicked.connect(self.solveBFSBtnClicked)
 
         # Timer label
         self.timerLabel = QtWidgets.QLabel(f'{0} sec')
@@ -91,8 +100,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Bottom layout
         self.bottomLayout = QtWidgets.QHBoxLayout()
         self.bottomLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignLeft)
-        self.bottomLayout.addWidget(self.algoRenderBtn, alignment=Qt.AlignCenter)
-        self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
+        self.bottomLayout.addWidget(self.solveDFSBtn, alignment=Qt.AlignCenter)
+        self.bottomLayout.addWidget(self.solveBFSBtn, alignment=Qt.AlignCenter)
+        # self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
 
         # Vertical layout
         self.windowLayout = QtWidgets.QVBoxLayout()
@@ -184,7 +194,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def gameWonHandler(self):
         self.newGameBtn.show()
         self.timer.stop()
-        print('GG')
 
     def newGameBtnClicked(self):
         self.newGameBtn.hide()
@@ -192,7 +201,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start()
 
     def solveDFSBtnClicked(self):
-        self.board.algoRender([(0, 0), (1, 1), (2, 2), (4, 4)], 300)
+        startNode = brute_force.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
+                                     parent=None, action=None)
+        sol = brute_force.dfsSolve(startNode)
+        self.board.algoRender(sol, 500)
+        print(f'Number of steps: {len(sol)}')
+        print(f'Steps: {sol}')
+        print()
+
+        global clickedCounter
+        clickedCounter += len(sol)
+        self.updateCount()
+
+    def solveBFSBtnClicked(self):
+        startNode = brute_force.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
+                                     parent=None, action=None)
+        sol = brute_force.bfsSolve(startNode)
+        self.board.algoRender(sol, 500)
+        print(f'Number of steps: {len(sol)}')
+        print(f'Steps: {sol}')
+        print()
+
+        global clickedCounter
+        clickedCounter += len(sol)
+        self.updateCount()
 
 
 class Board(QtWidgets.QWidget):
