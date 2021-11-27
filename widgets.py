@@ -241,8 +241,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def solveGreedyBtnClicked(self):
         startNode = greedy.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
                                 parent=None, action=None)
-        sol = startNode.greedy(startNode.stateLights)
-        self.board.algoRender(sol, 500)
+        sol = startNode.greedy(startNode.stateLights, self.board)
+        # self.board.algoRender(sol, 500)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
         print()
@@ -335,13 +335,15 @@ class Board(QtWidgets.QWidget):
             self.won.emit()
             clickedCounter = 0
 
-    def algoRender(self, listofsteps: list, ms: int) -> None:
+    def algoRender(self, correctTile, ms: int) -> None:
 
-        for i in listofsteps:
+        # for i in listofsteps:
 
             QtTest.QTest.qWait(ms)
 
-            pos = i
+            pos = correctTile
+            print(correctTile)
+            print(pos[1])
 
             # Zisti ktore policka boly affectnute klikom
             squaresAffected = []
