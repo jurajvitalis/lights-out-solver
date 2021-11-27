@@ -34,10 +34,11 @@ class Node:
                 else:
                     self.stateLights[r][c] = True
 
-    def greedy(self, tiles) -> list:
+    def greedy(self, tiles, board) -> list:
 
         listOfTiles = [tiles]
         finalList = []
+        board = board
 
         explored = []
 
@@ -88,8 +89,10 @@ class Node:
             if correctRow != -1 and correctCol != -1:
 
                 self.move(correctRow, correctCol)
-
                 correctTile = (correctRow, correctCol)
+
+                board.algoRender(correctTile, 500)
+
                 finalList.append(correctTile)
                 explored.append(correctTile)
 
