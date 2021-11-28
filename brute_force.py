@@ -119,7 +119,7 @@ def bfsSolveRender(startNode: Node, board: QtWidgets.QWidget, render: bool) -> l
 
         # Vyberie prve pridany node
         node = queue.pop(0)
-        print(f'cumCost = {node.cumCost}')
+        # print(f'cumCost = {node.cumCost}')
 
         # Ak node este nebol expandovany, expanduj ho
         if not (node.stateLights.tolist() in marked):
@@ -128,20 +128,17 @@ def bfsSolveRender(startNode: Node, board: QtWidgets.QWidget, render: bool) -> l
             if render:
                 board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
 
-            # Prida node k navstivenym
             marked.append(node.stateLights.tolist())
 
             # Prida susedne nody do queue
             for new_node in node.getAdjacentNodes():
                 if not(new_node.stateLights.tolist() in marked) or not (new_node.stateLights.tolist() in queue):
 
-                    # Check ci tento node je final
                     if new_node.isSolved():
 
                         if render:
                             board.renderState(new_node.stateLights, new_node.stateSwitches, constants.RENDER_STATE_MS)
 
-                        # Backtrack cez new_node.parent na najdenie postupnosti akcii ktore viedli k rieseniu
                         actions = []
                         while new_node.parent is not None:
                             actions.append(new_node.action)
@@ -152,11 +149,3 @@ def bfsSolveRender(startNode: Node, board: QtWidgets.QWidget, render: bool) -> l
                         return actions
 
                     queue.append(new_node)
-
-
-if __name__ == '__main__':
-    starttNode = Node(stateLights=constants.patterns3[1], stateSwitches=np.zeros((2, 3), int), parent=None, action=None)
-    sol = dfsSolve(starttNode)
-
-    print('Solution\n')
-    print(f'moves: {sol}')

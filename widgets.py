@@ -23,7 +23,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Rows, cols su specific pre kazdy board, passujem do constructora
         self.bRows = 5
         self.bCols = 5
-        self.bPattern = constants.patterns5[0].copy()
+        self.bPattern = constants.patterns[0].copy()
         self.board = Board(self.bRows, self.bCols, self.bPattern)
 
         self.board.won.connect(self.gameWonHandler)
@@ -41,10 +41,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.patternCombox = QtWidgets.QComboBox()
         self.patternCombox.setFixedWidth(125)
         self.patternCombox.setFixedHeight(25)
-        self.patternCombox.addItem('5x5 - EASY')
-        self.patternCombox.addItem('5x5 - HARD')
-        self.patternCombox.addItem('2x3 - EASY')
-        self.patternCombox.addItem('2x3 - HARD')
+        self.patternCombox.addItem('5x5 - 1')
+        self.patternCombox.addItem('5x5 - 3')
+        self.patternCombox.addItem('5x5 - 4')
+        self.patternCombox.addItem('5x5 - 6')
+        self.patternCombox.addItem('2x3 - 1')
+        self.patternCombox.addItem('2x3 - 3')
+        self.patternCombox.addItem('2x3 - 3')
         self.patternCombox.setObjectName('patternBtn')
         self.patternCombox.currentIndexChanged.connect(self.patternComboxHandler)
 
@@ -141,20 +144,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Vytvor novy board
         clickedCounter = 0
-        patternID = itemID % 2
-        if itemID <= 1:
-            self.board = Board(5, 5, constants.patterns5[patternID])
-            self.board.won.connect(self.gameWonHandler)
-            self.board.clickedSignal.connect(self.updateCount)
-        else:
-            self.board = Board(2, 3, constants.patterns3[patternID])
-            self.board.won.connect(self.gameWonHandler)
-            self.board.clickedSignal.connect(self.updateCount)
+        self.board = Board(len(constants.patterns[itemID]),
+                           len(constants.patterns[itemID][0]),
+                           np.array(constants.patterns[itemID]))
+        self.board.won.connect(self.gameWonHandler)
+        self.board.clickedSignal.connect(self.updateCount)
 
-            for i in range(0, 10):
-                QtWidgets.QApplication.processEvents()
+        for i in range(0, 10):
+            QtWidgets.QApplication.processEvents()
 
-            self.resize(self.minimumSizeHint())
+        self.resize(self.minimumSizeHint())
 
         # Pridaj novy board do layoutu
         self.windowLayout.insertWidget(1, self.board, alignment=Qt.AlignCenter)
@@ -237,6 +236,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.updateCount()
 
     def solveGreedyBtnClicked(self):
+        print('debug')
         startNode = greedy.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
                                 parent=None, action=None)
         sol = startNode.greedy(startNode.stateLights, self.board)
@@ -424,7 +424,6 @@ class Square(QtWidgets.QLabel):
         self.drawSquare(Qt.white)
 
     def turnOnClicked(self) -> None:
-        self.isOn = 1
         self.drawCircle(Qt.magenta)
 
     def turnOff(self) -> None:
