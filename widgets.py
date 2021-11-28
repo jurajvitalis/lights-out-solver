@@ -214,8 +214,7 @@ class MainWindow(QtWidgets.QMainWindow):
         startNode = brute_force.Node(stateLights=self.board.matrix,
                                      stateSwitches=np.zeros(self.board.pattern.shape, int),
                                      parent=None, action=None)
-        sol = brute_force.dfsSolve(startNode)
-        self.board.algoRender(sol, 500)
+        sol = brute_force.dfsSolve(startNode, self.board, render=True)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
         print()
@@ -228,8 +227,7 @@ class MainWindow(QtWidgets.QMainWindow):
         startNode = brute_force.Node(stateLights=self.board.matrix,
                                      stateSwitches=np.zeros(self.board.pattern.shape, int),
                                      parent=None, action=None)
-        sol = brute_force.bfsSolve(startNode)
-        self.board.algoRender(sol, 500)
+        sol = brute_force.bfsSolveRender(startNode, self.board, render=True)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
         print()
@@ -339,47 +337,65 @@ class Board(QtWidgets.QWidget):
 
         # for i in listofsteps:
 
-            QtTest.QTest.qWait(ms)
+        QtTest.QTest.qWait(ms)
 
-            pos = correctTile
-            print(correctTile)
-            print(pos[1])
+        pos = correctTile
+        print(correctTile)
+        # print(pos[1])
 
-            # Zisti ktore policka boly affectnute klikom
-            squaresAffected = []
+        # Zisti ktore policka boly affectnute klikom
+        squaresAffected = []
 
-            if 0 <= pos[1] - 1 <= self.cols - 1:
-                squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] - 1).widget())
+        if 0 <= pos[1] - 1 <= self.cols - 1:
+            squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] - 1).widget())
 
-            if 0 <= pos[1] + 1 <= self.cols - 1:
-                squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] + 1).widget())
+        if 0 <= pos[1] + 1 <= self.cols - 1:
+            squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1] + 1).widget())
 
-            if 0 <= pos[0] - 1 <= self.rows - 1:
-                squaresAffected.append(self.layout().itemAtPosition(pos[0] - 1, pos[1]).widget())
+        if 0 <= pos[0] - 1 <= self.rows - 1:
+            squaresAffected.append(self.layout().itemAtPosition(pos[0] - 1, pos[1]).widget())
 
-            if 0 <= pos[0] + 1 <= self.rows - 1:
-                squaresAffected.append(self.layout().itemAtPosition(pos[0] + 1, pos[1]).widget())
+        if 0 <= pos[0] + 1 <= self.rows - 1:
+            squaresAffected.append(self.layout().itemAtPosition(pos[0] + 1, pos[1]).widget())
 
-            squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1]).widget())
+        squaresAffected.append(self.layout().itemAtPosition(pos[0], pos[1]).widget())
 
-            # Flipni switch pre affektnute policka (Zapni/zhasni svetlo)
-            for t in squaresAffected:
-                idt = self.layout().indexOf(t)
-                post = self.layout().getItemPosition(idt)[:2]
+        # Flipni switch pre affektnute policka (Zapni/zhasni svetlo)
+        for t in squaresAffected:
+            idt = self.layout().indexOf(t)
+            post = self.layout().getItemPosition(idt)[:2]
 
-                if t.isOn:
-                    t.turnOff()
-                    self.matrix[post[0]][post[1]] = 0
+            if t.isOn:
+                t.turnOff()
+                self.matrix[post[0]][post[1]] = 0
+            else:
+                t.turnOn()
+                self.matrix[post[0]][post[1]] = 1
+
+        arr = np.array(self.matrix)
+        sum1 = arr.sum()
+
+        if sum1 == 0:
+            self.won.emit()
+            clickedCounter = 0
+
+    def renderState(self, stateLights: np.ndarray, stateSwitches: np.ndarray, ms: int) -> None:
+
+        QtTest.QTest.qWait(ms)
+
+        rows, cols = stateLights.shape
+        for r in range(rows):
+            for c in range(cols):
+                tile = self.layout().itemAtPosition(r, c).widget()
+                if stateLights[r][c] == 1:
+                    tile.turnOn()
+                    self.matrix[r][c] = 1
                 else:
-                    t.turnOn()
-                    self.matrix[post[0]][post[1]] = 1
+                    tile.turnOff()
+                    self.matrix[r][c] = 0
 
-            arr = np.array(self.matrix)
-            sum1 = arr.sum()
-
-            if sum1 == 0:
-                self.won.emit()
-                clickedCounter = 0
+                # if stateSwitches[r][c] == 1:
+                #     tile.turnOnRed()
 
 
 class Square(QtWidgets.QLabel):
@@ -403,6 +419,10 @@ class Square(QtWidgets.QLabel):
     def turnOn(self) -> None:
         self.isOn = 1
         self.drawSquare(Qt.white)
+
+    def turnOnRed(self) -> None:
+        self.isOn = 1
+        self.drawSquare(Qt.red)
 
     def turnOff(self) -> None:
         self.isOn = 0

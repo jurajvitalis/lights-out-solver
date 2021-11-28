@@ -2,6 +2,8 @@ import copy
 import numpy as np
 import constants
 
+from PyQt5 import QtWidgets
+
 
 class Node:
     def __init__(self, stateLights: np.ndarray, stateSwitches: np.ndarray, parent, action: tuple):
@@ -49,91 +51,78 @@ class Node:
         return False
 
 
-def dfsSolve(startNode: Node) -> list:
+def dfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
 
-    # List na trackovanie uz navstivenych stateov
-    explored = []
-
-    # List nodeov, ktore budeme postupne navstevovat
-    # Na zaciatku len startNode
+    marked = []
     stack = [startNode]
 
     while len(stack) > 0:
 
-        # Vyberiem posledne pridany node
+        # Vyberie posledne pridany node
         node = stack.pop()
 
-        # Pozriem sa, ci som ho v minulosti uz nenavstivil
-        if not(node.stateSwitches.tolist() in explored):
+        # Ak node este nebol navstiveny, navstiv ho
+        if not(node.stateSwitches.tolist() in marked):
 
-            # Pridam node k uz navstivenym
-            explored.append(node.stateSwitches.tolist())
+            if render:
+                board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
 
-            # Pozeram sa na vsetkych jeho susedov
+            # Check ci tento node je final
+            if node.isSolved():
+
+                # Backtrack cez node.parent na najdenie postupnosti akcii ktore viedli k rieseniu
+                actions = []
+                while node.parent is not None:
+                    actions.append(node.action)
+                    node = node.parent
+
+                actions.reverse()
+                return actions
+
+            # Prida node k navstivenym
+            marked.append(node.stateSwitches.tolist())
+
+            # Prida susedne nody do stacku
             for new_node in node.getAdjacentNodes():
-
-                # Je susedny node riesenie?
-                if new_node.isSolved():
-                    actions = []
-                    states = []
-
-                    # Backtrack cez vsetkych rodicov, loguj action a state
-                    while new_node.parent is not None:
-                        actions.append(new_node.action)
-                        states.append(new_node.stateSwitches)
-                        new_node = new_node.parent
-
-                    # Uprava vysledku
-                    actions.reverse()
-                    states.reverse()
-                    return actions
-
-                # Susedny node nie je riesenie, ak este nebol navstiveny, pridam ho do stacku
-                if not(new_node.stateSwitches.tolist() in explored):
+                if not(new_node.stateSwitches.tolist() in marked):
                     stack.append(new_node)
 
 
-def bfsSolve(startNode: Node) -> list:
-    # List na trackovanie uz navstivenych stateov
-    explored = []
+def bfsSolveRender(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
 
-    # List nodeov, ktore budeme postupne navstevovat
-    # Na zaciatku len startNode
-    stack = [startNode]
+    marked = []
+    queue = [startNode]
 
-    while len(stack) > 0:
+    while len(queue) > 0:
 
-        # Vyberiem FIFO
-        node = stack.pop(0)
+        # Vyberie prve pridany node
+        node = queue.pop(0)
 
-        # Pozriem sa, ci som ho v minulosti uz nenavstivil
-        if not (node.stateSwitches.tolist() in explored):
+        # Ak node este nebol navstiveny, navstiv ho
+        if not (node.stateLights.tolist() in marked):
 
-            # Pridam node k uz navstivenym
-            explored.append(node.stateSwitches.tolist())
+            if render:
+                board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
 
-            # Pozeram sa na vsetkych jeho susedov
+            # Check ci tento node je final
+            if node.isSolved():
+
+                # Backtrack cez node.parent na najdenie postupnosti akcii ktore viedli k rieseniu
+                actions = []
+                while node.parent is not None:
+                    actions.append(node.action)
+                    node = node.parent
+
+                actions.reverse()
+                return actions
+
+            # Prida node k navstivenym
+            marked.append(node.stateLights.tolist())
+
+            # Prida susedne nody do queue
             for new_node in node.getAdjacentNodes():
-
-                # Je susedny node riesenie?
-                if new_node.isSolved():
-                    actions = []
-                    states = []
-
-                    # Backtrack cez vsetkych rodicov, loguj action a state
-                    while new_node.parent is not None:
-                        actions.append(new_node.action)
-                        states.append(new_node.stateSwitches)
-                        new_node = new_node.parent
-
-                    # Uprava vysledku
-                    actions.reverse()
-                    states.reverse()
-                    return actions
-
-                # Susedny node nie je riesenie, ak este nebol navstiveny, pridam ho do stacku
-                if not (new_node.stateSwitches.tolist() in explored):
-                    stack.append(new_node)
+                if not (new_node.stateLights.tolist() in marked):
+                    queue.append(new_node)
 
 
 if __name__ == '__main__':
