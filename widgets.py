@@ -394,8 +394,8 @@ class Board(QtWidgets.QWidget):
                     tile.turnOff()
                     self.matrix[r][c] = 0
 
-                # if stateSwitches[r][c] == 1:
-                #     tile.turnOnRed()
+                if stateSwitches[r][c] == 1:
+                    tile.turnOnClicked()
 
 
 class Square(QtWidgets.QLabel):
@@ -420,9 +420,9 @@ class Square(QtWidgets.QLabel):
         self.isOn = 1
         self.drawSquare(Qt.white)
 
-    def turnOnRed(self) -> None:
+    def turnOnClicked(self) -> None:
         self.isOn = 1
-        self.drawSquare(Qt.red)
+        self.drawCircle(Qt.yellow)
 
     def turnOff(self) -> None:
         self.isOn = 0
@@ -437,6 +437,17 @@ class Square(QtWidgets.QLabel):
         painter.setPen(pen)
         painter.setBrush(QtGui.QBrush(color, Qt.SolidPattern))
         painter.drawRect(0, 0, constants.TILE_SIZE, constants.TILE_SIZE)
+        painter.end()
+        self.update()
+
+    def drawCircle(self, color) -> None:
+        painter = QtGui.QPainter(self.pixmap())
+        pen = QtGui.QPen()
+        pen.setWidth(2)
+        pen.setColor(QtGui.QColor(color))
+        painter.setPen(pen)
+        painter.setBrush(QtGui.QBrush(color, Qt.SolidPattern))
+        painter.drawEllipse(35, 35, 5, 5)
         painter.end()
         self.update()
 

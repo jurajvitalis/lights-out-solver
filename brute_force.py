@@ -4,6 +4,7 @@ import constants
 
 from PyQt5 import QtWidgets
 
+counter = 0
 
 class Node:
     def __init__(self, stateLights: np.ndarray, stateSwitches: np.ndarray, parent, action: tuple):
@@ -21,7 +22,10 @@ class Node:
         self.action = (row, col)
 
         # Zaznamenaj zmenu v matici stateSwitches
-        self.stateSwitches[row, col] = 1
+        if self.stateSwitches[row][col] == 0:
+            self.stateSwitches[row][col] = 1
+        else:
+            self.stateSwitches[row][col] = 0
 
         # Zaznamenaj zmenu v matici stateLights
         for (r, c) in ((row, col), (row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)):
@@ -38,6 +42,9 @@ class Node:
         for r in range(n_rows):
             for c in range(n_cols):
                 newNode = copy.deepcopy(self)
+                global counter
+                counter += 1
+
                 newNode.parent = self
                 newNode.performMove(r, c)
                 nodes.append(newNode)
@@ -59,47 +66,16 @@ def dfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
     while len(stack) > 0:
 
         # Vyberie posledne pridany node
+        print(len(stack))
+        print(f'deepcopies: {counter}')
         node = stack.pop()
 
         # Ak node este nebol navstiveny, navstiv ho
-        if not(node.stateSwitches.tolist() in marked):
-
-            if render:
-                board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
-
-            # Check ci tento node je final
-            if node.isSolved():
-
-                # Backtrack cez node.parent na najdenie postupnosti akcii ktore viedli k rieseniu
-                actions = []
-                while node.parent is not None:
-                    actions.append(node.action)
-                    node = node.parent
-
-                actions.reverse()
-                return actions
-
-            # Prida node k navstivenym
-            marked.append(node.stateSwitches.tolist())
-
-            # Prida susedne nody do stacku
-            for new_node in node.getAdjacentNodes():
-                if not(new_node.stateSwitches.tolist() in marked):
-                    stack.append(new_node)
-
-
-def bfsSolveRender(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
-
-    marked = []
-    queue = [startNode]
-
-    while len(queue) > 0:
-
-        # Vyberie prve pridany node
-        node = queue.pop(0)
-
-        # Ak node este nebol navstiveny, navstiv ho
-        if not (node.stateLights.tolist() in marked):
+        if not(node.stateLights.tolist() in marked):
+            print('STATE')
+            print(node.stateSwitches)
+            print(node.stateLights)
+            print('ESTE NEBOL NAVSTIVENY')
 
             if render:
                 board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
@@ -119,10 +95,78 @@ def bfsSolveRender(startNode: Node, board: QtWidgets.QWidget, render: bool) -> l
             # Prida node k navstivenym
             marked.append(node.stateLights.tolist())
 
+            # Prida susedne nody do stacku
+            for new_node in node.getAdjacentNodes():
+                if not(new_node.stateLights.tolist() in marked):
+                    print('ADDING TO STACK:')
+                    print(new_node.stateSwitches)
+                    print(new_node.stateLights)
+                    stack.append(new_node)
+                else:
+                    print('NOT ADDING:')
+                    print(new_node.stateSwitches)
+                    print(new_node.stateLights)
+
+        else:
+            print('STATE:')
+            print(node.stateSwitches)
+            print(node.stateLights)
+            print('UZ BOL NAVSTIVENY')
+
+
+def bfsSolveRender(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
+
+    marked = []
+    queue = [startNode]
+
+    while len(queue) > 0:
+
+        # Vyberie prve pridany node
+        print(len(queue))
+        print(f'deepcopies: {counter}')
+        node = queue.pop(0)
+
+        # Ak node este nebol navstiveny, navstiv ho
+        if not (node.stateSwitches.tolist() in marked):
+            print('STATE')
+            print(node.stateSwitches)
+            print(node.stateLights)
+            print('ESTE NEBOL NAVSTIVENY')
+
+            if render:
+                board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
+
+            # Check ci tento node je final
+            if node.isSolved():
+
+                # Backtrack cez node.parent na najdenie postupnosti akcii ktore viedli k rieseniu
+                actions = []
+                while node.parent is not None:
+                    actions.append(node.action)
+                    node = node.parent
+
+                actions.reverse()
+                return actions
+
+            # Prida node k navstivenym
+            marked.append(node.stateSwitches.tolist())
+
             # Prida susedne nody do queue
             for new_node in node.getAdjacentNodes():
                 if not (new_node.stateLights.tolist() in marked):
+                    print('ADDING TO STACK:')
+                    print(new_node.stateSwitches)
+                    print(new_node.stateLights)
                     queue.append(new_node)
+                else:
+                    print('NOT ADDING:')
+                    print(new_node.stateSwitches)
+                    print(new_node.stateLights)
+        else:
+            print('STATE:')
+            print(node.stateSwitches)
+            print(node.stateLights)
+            print('UZ BOL NAVSTIVENY')
 
 
 if __name__ == '__main__':

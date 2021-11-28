@@ -3,7 +3,6 @@ import sys
 import widgets
 
 if __name__ == "__main__":
-
     # Create application
     app = QtWidgets.QApplication(sys.argv)
 
