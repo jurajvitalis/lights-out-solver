@@ -213,7 +213,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def solveDFSBtnClicked(self):
         startNode = brute_force.Node(stateLights=self.board.matrix,
                                      stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                     parent=None, action=None)
+                                     parent=None, action=None, cumCost=0)
         sol = brute_force.dfsSolve(startNode, self.board, render=True)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
@@ -226,7 +226,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def solveBFSBtnClicked(self):
         startNode = brute_force.Node(stateLights=self.board.matrix,
                                      stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                     parent=None, action=None)
+                                     parent=None, action=None, cumCost=0)
         sol = brute_force.bfsSolveRender(startNode, self.board, render=True)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
@@ -394,6 +394,9 @@ class Board(QtWidgets.QWidget):
                     tile.turnOff()
                     self.matrix[r][c] = 0
 
+        for r in range(rows):
+            for c in range(cols):
+                tile = self.layout().itemAtPosition(r, c).widget()
                 if stateSwitches[r][c] == 1:
                     tile.turnOnClicked()
 
@@ -422,7 +425,7 @@ class Square(QtWidgets.QLabel):
 
     def turnOnClicked(self) -> None:
         self.isOn = 1
-        self.drawCircle(Qt.yellow)
+        self.drawCircle(Qt.magenta)
 
     def turnOff(self) -> None:
         self.isOn = 0

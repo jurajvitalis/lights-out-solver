@@ -7,11 +7,12 @@ from PyQt5 import QtWidgets
 counter = 0
 
 class Node:
-    def __init__(self, stateLights: np.ndarray, stateSwitches: np.ndarray, parent, action: tuple):
+    def __init__(self, stateLights: np.ndarray, stateSwitches: np.ndarray, parent, action: tuple, cumCost: int):
         self.stateLights = stateLights
         self.stateSwitches = stateSwitches
         self.parent = parent
         self.action = action  # Action from parent to child
+        self.cumCost = cumCost
 
     def performMove(self, row: int, col: int) -> None:
         n_rows, n_cols = self.stateLights.shape
@@ -20,6 +21,9 @@ class Node:
 
         # Zapis action
         self.action = (row, col)
+
+        # Pridaj cumCost
+        self.cumCost += 1
 
         # Zaznamenaj zmenu v matici stateSwitches
         if self.stateSwitches[row][col] == 0:
@@ -36,11 +40,17 @@ class Node:
                     self.stateLights[r][c] = True
 
     def getAdjacentNodes(self) -> list:
+        if self.stateSwitches.sum() == 25:
+            return []
+
         nodes = []
         n_rows, n_cols = self.stateLights.shape
 
         for r in range(n_rows):
             for c in range(n_cols):
+                # if self.stateSwitches[r][c] == 1:
+                #     continue
+
                 newNode = copy.deepcopy(self)
                 global counter
                 counter += 1
@@ -62,111 +72,86 @@ def dfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
 
     marked = []
     stack = [startNode]
+    expanded_nodes = 0
 
     while len(stack) > 0:
 
         # Vyberie posledne pridany node
-        print(len(stack))
-        print(f'deepcopies: {counter}')
         node = stack.pop()
 
-        # Ak node este nebol navstiveny, navstiv ho
+        # Ak node este nebol expandovany, expanduj ho
         if not(node.stateLights.tolist() in marked):
-            print('STATE')
-            print(node.stateSwitches)
-            print(node.stateLights)
-            print('ESTE NEBOL NAVSTIVENY')
+            expanded_nodes += 1
 
             if render:
                 board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
 
-            # Check ci tento node je final
-            if node.isSolved():
-
-                # Backtrack cez node.parent na najdenie postupnosti akcii ktore viedli k rieseniu
-                actions = []
-                while node.parent is not None:
-                    actions.append(node.action)
-                    node = node.parent
-
-                actions.reverse()
-                return actions
-
-            # Prida node k navstivenym
             marked.append(node.stateLights.tolist())
 
-            # Prida susedne nody do stacku
+            # Prida susedne nody do queue
             for new_node in node.getAdjacentNodes():
-                if not(new_node.stateLights.tolist() in marked):
-                    print('ADDING TO STACK:')
-                    print(new_node.stateSwitches)
-                    print(new_node.stateLights)
-                    stack.append(new_node)
-                else:
-                    print('NOT ADDING:')
-                    print(new_node.stateSwitches)
-                    print(new_node.stateLights)
+                if not (new_node.stateLights.tolist() in marked) or not (new_node.stateLights.tolist() in stack):
 
-        else:
-            print('STATE:')
-            print(node.stateSwitches)
-            print(node.stateLights)
-            print('UZ BOL NAVSTIVENY')
+                    if new_node.isSolved():
+
+                        if render:
+                            board.renderState(new_node.stateLights, new_node.stateSwitches, constants.RENDER_STATE_MS)
+
+                        actions = []
+                        while new_node.parent is not None:
+                            actions.append(new_node.action)
+                            new_node = new_node.parent
+
+                        actions.reverse()
+                        print(f'Pocet expandovanych uzlov: {expanded_nodes}')
+                        return actions
+
+                    stack.append(new_node)
 
 
 def bfsSolveRender(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
 
     marked = []
     queue = [startNode]
+    expanded_nodes = 0
 
     while len(queue) > 0:
 
         # Vyberie prve pridany node
-        print(len(queue))
-        print(f'deepcopies: {counter}')
         node = queue.pop(0)
+        print(f'cumCost = {node.cumCost}')
 
-        # Ak node este nebol navstiveny, navstiv ho
-        if not (node.stateSwitches.tolist() in marked):
-            print('STATE')
-            print(node.stateSwitches)
-            print(node.stateLights)
-            print('ESTE NEBOL NAVSTIVENY')
+        # Ak node este nebol expandovany, expanduj ho
+        if not (node.stateLights.tolist() in marked):
+            expanded_nodes += 1
 
             if render:
                 board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
 
-            # Check ci tento node je final
-            if node.isSolved():
-
-                # Backtrack cez node.parent na najdenie postupnosti akcii ktore viedli k rieseniu
-                actions = []
-                while node.parent is not None:
-                    actions.append(node.action)
-                    node = node.parent
-
-                actions.reverse()
-                return actions
-
             # Prida node k navstivenym
-            marked.append(node.stateSwitches.tolist())
+            marked.append(node.stateLights.tolist())
 
             # Prida susedne nody do queue
             for new_node in node.getAdjacentNodes():
-                if not (new_node.stateLights.tolist() in marked):
-                    print('ADDING TO STACK:')
-                    print(new_node.stateSwitches)
-                    print(new_node.stateLights)
+                if not(new_node.stateLights.tolist() in marked) or not (new_node.stateLights.tolist() in queue):
+
+                    # Check ci tento node je final
+                    if new_node.isSolved():
+
+                        if render:
+                            board.renderState(new_node.stateLights, new_node.stateSwitches, constants.RENDER_STATE_MS)
+
+                        # Backtrack cez new_node.parent na najdenie postupnosti akcii ktore viedli k rieseniu
+                        actions = []
+                        while new_node.parent is not None:
+                            actions.append(new_node.action)
+                            new_node = new_node.parent
+
+                        actions.reverse()
+                        print(f'Pocet expandovanych uzlov: {expanded_nodes}')
+                        return actions
+
                     queue.append(new_node)
-                else:
-                    print('NOT ADDING:')
-                    print(new_node.stateSwitches)
-                    print(new_node.stateLights)
-        else:
-            print('STATE:')
-            print(node.stateSwitches)
-            print(node.stateLights)
-            print('UZ BOL NAVSTIVENY')
 
 
 if __name__ == '__main__':
