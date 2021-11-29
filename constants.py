@@ -1,5 +1,3 @@
-import numpy as np
-
 TILE_SIZE = 75
 
 TICKRATE = 32

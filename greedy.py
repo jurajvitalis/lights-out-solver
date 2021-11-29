@@ -1,11 +1,10 @@
 import constants
 import heapq
 from graph_node import Node
-
 from PyQt5 import QtWidgets
 
 
-def greedySolve2(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
+def greedySolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
 
     prioQueue = []
     heapq.heappush(prioQueue, (startNode.hVal, startNode))
@@ -20,7 +19,6 @@ def greedySolve2(startNode: Node, board: QtWidgets.QWidget, render: bool) -> lis
         if node.isSolved():
             if render:
                 board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
-                print(node.stateSwitches)
 
             actions = []
             while node.parent is not None:
@@ -34,7 +32,7 @@ def greedySolve2(startNode: Node, board: QtWidgets.QWidget, render: bool) -> lis
         # Ak node este nebol expandovany, expanduj ho
         if not(node.stateLights.tolist() in marked):
 
-            print(f'hVal = {node.hVal}', f'pathCost = {node.pathCost}')
+            # print(f'hVal = {node.hVal}', f'pathCost = {node.pathCost}')
             expanded_nodes += 1
 
             if render:

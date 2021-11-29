@@ -8,10 +8,12 @@ import numpy as np
 from timeit import default_timer as timer
 
 import constants
-import brute_force
-import greedy
+import dfs
+import bfs
+import greedy_old
 import a_star
-import greedy2
+import greedy
+from graph_node import Node
 
 clickedCounter = 0
 
@@ -102,14 +104,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solveAStarBtn.setObjectName('algoRenderBtn')
         self.solveAStarBtn.clicked.connect(self.solveAStarBtnClicked)
 
-        # Create Solve GREEDY_2 button
-        self.solveGreedy2Btn = QtWidgets.QPushButton()
-        self.solveGreedy2Btn.setFixedWidth(150)
-        self.solveGreedy2Btn.setFixedHeight(50)
-        self.solveGreedy2Btn.setText('Solve - Greedy2')
-        self.solveGreedy2Btn.setObjectName('algoRenderBtn')
-        self.solveGreedy2Btn.clicked.connect(self.solveGreedy2BtnClicked)
-
         # Timer label
         self.timerLabel = QtWidgets.QLabel(f'{0} sec')
 
@@ -129,12 +123,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Bottom layout
         self.bottomLayout = QtWidgets.QHBoxLayout()
-        self.bottomLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignLeft)
+        # self.bottomLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignLeft)
         self.bottomLayout.addWidget(self.solveDFSBtn, alignment=Qt.AlignCenter)
         self.bottomLayout.addWidget(self.solveBFSBtn, alignment=Qt.AlignCenter)
         self.bottomLayout.addWidget(self.solveGreedyBtn, alignment=Qt.AlignCenter)
         self.bottomLayout.addWidget(self.solveAStarBtn, alignment=Qt.AlignCenter)
-        self.bottomLayout.addWidget(self.solveGreedy2Btn, alignment=Qt.AlignCenter)
         # self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
 
         # Vertical layout
@@ -230,10 +223,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start()
 
     def solveDFSBtnClicked(self):
-        startNode = brute_force.Node(stateLights=self.board.matrix,
-                                     stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                     parent=None, action=None, cumCost=0)
-        sol = brute_force.dfsSolve(startNode, self.board, render=True)
+        startNode = Node(stateLights=self.board.matrix,
+                         stateSwitches=np.zeros(self.board.pattern.shape, int),
+                         parent=None, action=None, pathCost=0)
+        sol = dfs.dfsSolve(startNode, self.board, render=True)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
         print()
@@ -243,10 +236,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.updateCount()
 
     def solveBFSBtnClicked(self):
-        startNode = brute_force.Node(stateLights=self.board.matrix,
-                                     stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                     parent=None, action=None, cumCost=0)
-        sol = brute_force.bfsSolve(startNode, self.board, render=True)
+        startNode = Node(stateLights=self.board.matrix,
+                         stateSwitches=np.zeros(self.board.pattern.shape, int),
+                         parent=None, action=None, pathCost=0)
+        sol = bfs.bfsSolve(startNode, self.board, render=True)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
         print()
@@ -256,10 +249,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.updateCount()
 
     def solveGreedyBtnClicked(self):
-        startNode = greedy.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                parent=None, action=None)
-        sol = startNode.greedy(startNode.stateLights, self.board)
-        # self.board.algoRender(sol, 500)
+        startNode = Node(stateLights=self.board.matrix,
+                         stateSwitches=np.zeros(self.board.pattern.shape, int),
+                         parent=None, action=None, pathCost=0)
+        sol = greedy.greedySolve(startNode, self.board, render=True)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
         print()
@@ -269,22 +262,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.updateCount()
 
     def solveAStarBtnClicked(self):
-        startNode = a_star.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                parent=None, action=None, pathCost=0, hVal=0)
+        startNode = a_star.Node(stateLights=self.board.matrix,
+                                stateSwitches=np.zeros(self.board.pattern.shape, int),
+                                parent=None, action=None, pathCost=0)
         sol = a_star.aStarSolve(startNode, self.board, render=True)
-
-        print(f'Number of steps: {len(sol)}')
-        print(f'Steps: {sol}')
-        print()
-
-        global clickedCounter
-        clickedCounter += len(sol)
-        self.updateCount()
-
-    def solveGreedy2BtnClicked(self):
-        startNode = greedy2.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                parent=None, action=None, pathCost=0, hVal=0)
-        sol = greedy2.greedySolve2(startNode, self.board, render=True)
 
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
@@ -377,8 +358,6 @@ class Board(QtWidgets.QWidget):
         if sum1 == 0:
             self.won.emit()
             clickedCounter = 0
-
-
 
     def renderState(self, stateLights: np.ndarray, stateSwitches: np.ndarray, ms: int) -> None:
 
