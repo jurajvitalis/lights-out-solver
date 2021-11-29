@@ -10,6 +10,8 @@ from timeit import default_timer as timer
 import constants
 import brute_force
 import greedy
+import a_star
+import greedy2
 
 clickedCounter = 0
 
@@ -23,7 +25,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Rows, cols su specific pre kazdy board, passujem do constructora
         self.bRows = 5
         self.bCols = 5
-        self.bPattern = constants.patterns5[0].copy()
+        self.bPattern = np.array(constants.patterns[0])
         self.board = Board(self.bRows, self.bCols, self.bPattern)
 
         self.board.won.connect(self.gameWonHandler)
@@ -41,10 +43,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.patternCombox = QtWidgets.QComboBox()
         self.patternCombox.setFixedWidth(125)
         self.patternCombox.setFixedHeight(25)
-        self.patternCombox.addItem('5x5 - EASY')
-        self.patternCombox.addItem('5x5 - HARD')
-        self.patternCombox.addItem('2x3 - EASY')
-        self.patternCombox.addItem('2x3 - HARD')
+        self.patternCombox.addItem('5x5 - 1')
+        self.patternCombox.addItem('5x5 - 3')
+        self.patternCombox.addItem('5x5 - 4')
+        self.patternCombox.addItem('5x5 - 6')
+        self.patternCombox.addItem('2x3 - 1')
+        self.patternCombox.addItem('2x3 - 3')
+        self.patternCombox.addItem('2x3 - 3')
         self.patternCombox.setObjectName('patternBtn')
         self.patternCombox.currentIndexChanged.connect(self.patternComboxHandler)
 
@@ -81,13 +86,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solveBFSBtn.setObjectName('algoRenderBtn')
         self.solveBFSBtn.clicked.connect(self.solveBFSBtnClicked)
 
-        # Create Solve BFS button
+        # Create Solve GREEDY button
         self.solveGreedyBtn = QtWidgets.QPushButton()
         self.solveGreedyBtn.setFixedWidth(150)
         self.solveGreedyBtn.setFixedHeight(50)
         self.solveGreedyBtn.setText('Solve - Greedy')
         self.solveGreedyBtn.setObjectName('algoRenderBtn')
         self.solveGreedyBtn.clicked.connect(self.solveGreedyBtnClicked)
+
+        # Create Solve A_STAR button
+        self.solveAStarBtn = QtWidgets.QPushButton()
+        self.solveAStarBtn.setFixedWidth(150)
+        self.solveAStarBtn.setFixedHeight(50)
+        self.solveAStarBtn.setText('Solve - AStar')
+        self.solveAStarBtn.setObjectName('algoRenderBtn')
+        self.solveAStarBtn.clicked.connect(self.solveAStarBtnClicked)
+
+        # Create Solve GREEDY_2 button
+        self.solveGreedy2Btn = QtWidgets.QPushButton()
+        self.solveGreedy2Btn.setFixedWidth(150)
+        self.solveGreedy2Btn.setFixedHeight(50)
+        self.solveGreedy2Btn.setText('Solve - Greedy2')
+        self.solveGreedy2Btn.setObjectName('algoRenderBtn')
+        self.solveGreedy2Btn.clicked.connect(self.solveGreedy2BtnClicked)
 
         # Timer label
         self.timerLabel = QtWidgets.QLabel(f'{0} sec')
@@ -112,6 +133,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bottomLayout.addWidget(self.solveDFSBtn, alignment=Qt.AlignCenter)
         self.bottomLayout.addWidget(self.solveBFSBtn, alignment=Qt.AlignCenter)
         self.bottomLayout.addWidget(self.solveGreedyBtn, alignment=Qt.AlignCenter)
+        self.bottomLayout.addWidget(self.solveAStarBtn, alignment=Qt.AlignCenter)
+        self.bottomLayout.addWidget(self.solveGreedy2Btn, alignment=Qt.AlignCenter)
         # self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
 
         # Vertical layout
@@ -141,20 +164,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Vytvor novy board
         clickedCounter = 0
-        patternID = itemID % 2
-        if itemID <= 1:
-            self.board = Board(5, 5, constants.patterns5[patternID])
-            self.board.won.connect(self.gameWonHandler)
-            self.board.clickedSignal.connect(self.updateCount)
-        else:
-            self.board = Board(2, 3, constants.patterns3[patternID])
-            self.board.won.connect(self.gameWonHandler)
-            self.board.clickedSignal.connect(self.updateCount)
+        self.board = Board(len(constants.patterns[itemID]),
+                           len(constants.patterns[itemID][0]),
+                           np.array(constants.patterns[itemID]))
+        self.board.won.connect(self.gameWonHandler)
+        self.board.clickedSignal.connect(self.updateCount)
 
-            for i in range(0, 10):
-                QtWidgets.QApplication.processEvents()
+        for i in range(0, 10):
+            QtWidgets.QApplication.processEvents()
 
-            self.resize(self.minimumSizeHint())
+        self.resize(self.minimumSizeHint())
 
         # Pridaj novy board do layoutu
         self.windowLayout.insertWidget(1, self.board, alignment=Qt.AlignCenter)
@@ -213,7 +232,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def solveDFSBtnClicked(self):
         startNode = brute_force.Node(stateLights=self.board.matrix,
                                      stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                     parent=None, action=None)
+                                     parent=None, action=None, cumCost=0)
         sol = brute_force.dfsSolve(startNode, self.board, render=True)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
@@ -226,8 +245,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def solveBFSBtnClicked(self):
         startNode = brute_force.Node(stateLights=self.board.matrix,
                                      stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                     parent=None, action=None)
-        sol = brute_force.bfsSolveRender(startNode, self.board, render=True)
+                                     parent=None, action=None, cumCost=0)
+        sol = brute_force.bfsSolve(startNode, self.board, render=True)
         print(f'Number of steps: {len(sol)}')
         print(f'Steps: {sol}')
         print()
@@ -249,6 +268,32 @@ class MainWindow(QtWidgets.QMainWindow):
         clickedCounter += len(sol)
         self.updateCount()
 
+    def solveAStarBtnClicked(self):
+        startNode = a_star.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
+                                parent=None, action=None, pathCost=0, hVal=0)
+        sol = a_star.aStarSolve(startNode, self.board, render=True)
+
+        print(f'Number of steps: {len(sol)}')
+        print(f'Steps: {sol}')
+        print()
+
+        global clickedCounter
+        clickedCounter += len(sol)
+        self.updateCount()
+
+    def solveGreedy2BtnClicked(self):
+        startNode = greedy2.Node(stateLights=self.board.matrix, stateSwitches=np.zeros(self.board.pattern.shape, int),
+                                parent=None, action=None, pathCost=0, hVal=0)
+        sol = greedy2.greedySolve2(startNode, self.board, render=True)
+
+        print(f'Number of steps: {len(sol)}')
+        print(f'Steps: {sol}')
+        print()
+
+        global clickedCounter
+        clickedCounter += len(sol)
+        self.updateCount()
+
 
 class Board(QtWidgets.QWidget):
     """Reprezentuje celu hraciu plochu, aj graficku aj maticovu reprezentaciu"""
@@ -262,7 +307,7 @@ class Board(QtWidgets.QWidget):
         # nastavenie 5x5, 2x3
         self.rows = rows
         self.cols = cols
-        self.pattern = pattern
+        self.pattern = pattern.copy()
         self.matrix = pattern.copy()
 
         gridLayout = QtWidgets.QGridLayout()
@@ -333,6 +378,30 @@ class Board(QtWidgets.QWidget):
             self.won.emit()
             clickedCounter = 0
 
+
+
+    def renderState(self, stateLights: np.ndarray, stateSwitches: np.ndarray, ms: int) -> None:
+
+        rows, cols = stateLights.shape
+
+        for r in range(rows):
+            for c in range(cols):
+                tile = self.layout().itemAtPosition(r, c).widget()
+                if stateLights[r][c] == 1:
+                    tile.turnOn()
+                else:
+                    tile.turnOff()
+
+        for r in range(rows):
+            for c in range(cols):
+                tile = self.layout().itemAtPosition(r, c).widget()
+                if stateSwitches[r][c] == 1:
+                    tile.turnOnClicked()
+                else:
+                    tile.turnOffClicked()
+
+        QtTest.QTest.qWait(ms)
+
     def algoRender(self, correctTile, ms: int) -> None:
 
         # for i in listofsteps:
@@ -379,23 +448,11 @@ class Board(QtWidgets.QWidget):
             self.won.emit()
             clickedCounter = 0
 
-    def renderState(self, stateLights: np.ndarray, stateSwitches: np.ndarray, ms: int) -> None:
+    def renderSolution(self, action: list, ms: int) -> None:
 
-        QtTest.QTest.qWait(ms)
-
-        rows, cols = stateLights.shape
-        for r in range(rows):
-            for c in range(cols):
-                tile = self.layout().itemAtPosition(r, c).widget()
-                if stateLights[r][c] == 1:
-                    tile.turnOn()
-                    self.matrix[r][c] = 1
-                else:
-                    tile.turnOff()
-                    self.matrix[r][c] = 0
-
-                # if stateSwitches[r][c] == 1:
-                #     tile.turnOnRed()
+        for (r, c) in action:
+            QtTest.QTest.qWait(ms)
+            self.algoRender((r, c), 100)
 
 
 class Square(QtWidgets.QLabel):
@@ -408,6 +465,7 @@ class Square(QtWidgets.QLabel):
         super().__init__()
 
         self.isOn = False
+        self.isOnClicked = False
 
         self.setFixedSize(QtCore.QSize(constants.TILE_SIZE, constants.TILE_SIZE))
 
@@ -420,9 +478,16 @@ class Square(QtWidgets.QLabel):
         self.isOn = 1
         self.drawSquare(Qt.white)
 
-    def turnOnRed(self) -> None:
-        self.isOn = 1
-        self.drawSquare(Qt.red)
+    def turnOnClicked(self) -> None:
+        self.isOnClicked = 1
+        self.drawCircle(Qt.magenta)
+
+    def turnOffClicked(self) -> None:
+        self.isOnClicked = 0
+        if self.isOn:
+            self.drawCircle(Qt.white)
+        else:
+            self.drawCircle(Qt.gray)
 
     def turnOff(self) -> None:
         self.isOn = 0
@@ -437,6 +502,17 @@ class Square(QtWidgets.QLabel):
         painter.setPen(pen)
         painter.setBrush(QtGui.QBrush(color, Qt.SolidPattern))
         painter.drawRect(0, 0, constants.TILE_SIZE, constants.TILE_SIZE)
+        painter.end()
+        self.update()
+
+    def drawCircle(self, color) -> None:
+        painter = QtGui.QPainter(self.pixmap())
+        pen = QtGui.QPen()
+        pen.setWidth(2)
+        pen.setColor(QtGui.QColor(color))
+        painter.setPen(pen)
+        painter.setBrush(QtGui.QBrush(color, Qt.SolidPattern))
+        painter.drawEllipse(35, 35, 5, 5)
         painter.end()
         self.update()
 
