@@ -109,7 +109,7 @@ def dfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
                     stack.append(new_node)
 
 
-def bfsSolveRender(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
+def bfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
 
     marked = []
     queue = [startNode]
