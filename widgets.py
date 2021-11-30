@@ -304,7 +304,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                 stateSwitches=np.zeros(self.board.pattern.shape, int),
                                 parent=None, action=None, pathCost=0)
         sol = a_star.aStarSolve(startNode, self.board, render=True)
-        self.showSolution(sol, render=True)
+        self.showSolution(sol, render=False)
 
         global clickedCounter
         clickedCounter += len(sol)
