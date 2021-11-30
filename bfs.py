@@ -2,6 +2,7 @@ import constants
 from PyQt5 import QtWidgets
 from graph_node import Node
 
+
 def bfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
     marked = []
     queue = [startNode]
@@ -17,7 +18,7 @@ def bfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
             expanded_nodes += 1
 
             if render:
-                board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
+                board.renderState(node.stateLights, node.stateSwitches, constants.SOLVER_MS)
 
             marked.append(node.stateLights.tolist())
 
@@ -27,7 +28,7 @@ def bfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list:
                     if new_node.isSolved():
 
                         if render:
-                            board.renderState(new_node.stateLights, new_node.stateSwitches, constants.RENDER_STATE_MS)
+                            board.renderState(new_node.stateLights, new_node.stateSwitches, constants.SOLVER_MS)
 
                         actions = []
                         while new_node.parent is not None:

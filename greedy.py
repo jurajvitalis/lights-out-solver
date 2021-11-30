@@ -18,7 +18,7 @@ def greedySolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list
 
         if node.isSolved():
             if render:
-                board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
+                board.renderState(node.stateLights, node.stateSwitches, constants.SOLVER_MS)
 
             actions = []
             while node.parent is not None:
@@ -36,7 +36,7 @@ def greedySolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> list
             expanded_nodes += 1
 
             if render:
-                board.renderState(node.stateLights, node.stateSwitches, constants.RENDER_STATE_MS)
+                board.renderState(node.stateLights, node.stateSwitches, constants.SOLVER_MS)
 
             marked.append(node.stateLights.tolist())
 
