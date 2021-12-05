@@ -10,13 +10,10 @@ from timeit import default_timer as timer
 import constants
 import dfs
 import bfs
-import greedy_old
 import a_star
 import greedy
 from graph_node import Node
 import math
-
-clickedCounter = 0
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -32,7 +29,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.board = Board(self.bRows, self.bCols, self.bPattern)
 
         self.board.won.connect(self.gameWonHandler)
-        self.board.clickedSignal.connect(self.updateCount)
 
         # Create RESET button
         self.resetBtn = QtWidgets.QPushButton()
@@ -56,23 +52,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.patternCombox.setObjectName('patternBtn')
         self.patternCombox.currentIndexChanged.connect(self.patternComboxHandler)
 
-        # Create NEWGAME button
-        self.newGameBtn = QtWidgets.QPushButton()
-        self.newGameBtn.setFixedWidth(100)
-        self.newGameBtn.setFixedHeight(50)
-        self.newGameBtn.setText('NEW GAME')
-        self.newGameBtn.setObjectName('newGameBtn')
-        self.newGameBtn.clicked.connect(self.newGameBtnClicked)
-        self.newGameBtn.hide()
-
-        # Create nClicks label
-        self.nClicksLabel = QtWidgets.QLabel()
-        self.nClicksLabel.setFixedWidth(100)
-        self.nClicksLabel.setFixedHeight(50)
-        self.nClicksLabel.setText("Moves: " + str(clickedCounter))
-        self.nClicksLabel.setObjectName('nClicksLabel')
-        self.nClicksLabel.setAlignment(Qt.AlignCenter)
-
         # Create Solve DFS button
         self.solverDFSBtn = QtWidgets.QPushButton()
         self.solverDFSBtn.setFixedWidth(125)
@@ -80,14 +59,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solverDFSBtn.setText('DFS solver')
         self.solverDFSBtn.setObjectName('algoRenderBtn')
         self.solverDFSBtn.clicked.connect(self.solverDFSBtnClicked)
-
-        # Create Solution DFS button
-        self.solutionDFSBtn = QtWidgets.QPushButton()
-        self.solutionDFSBtn.setFixedWidth(125)
-        self.solutionDFSBtn.setFixedHeight(50)
-        self.solutionDFSBtn.setText('DFS solution')
-        self.solutionDFSBtn.setObjectName('algoRenderBtn')
-        self.solutionDFSBtn.clicked.connect(self.solutionDFSBtnClicked)
 
         # Create Solve BFS button
         self.solverBFSBtn = QtWidgets.QPushButton()
@@ -97,14 +68,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solverBFSBtn.setObjectName('algoRenderBtn')
         self.solverBFSBtn.clicked.connect(self.solverBFSBtnClicked)
 
-        # Create Solution BFS button
-        self.solutionBFSBtn = QtWidgets.QPushButton()
-        self.solutionBFSBtn.setFixedWidth(125)
-        self.solutionBFSBtn.setFixedHeight(50)
-        self.solutionBFSBtn.setText('BFS solution')
-        self.solutionBFSBtn.setObjectName('algoRenderBtn')
-        self.solutionBFSBtn.clicked.connect(self.solutionBFSBtnClicked)
-
         # Create Solve GREEDY button
         self.solverGreedyBtn = QtWidgets.QPushButton()
         self.solverGreedyBtn.setFixedWidth(125)
@@ -113,14 +76,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solverGreedyBtn.setObjectName('algoRenderBtn')
         self.solverGreedyBtn.clicked.connect(self.solverGreedyBtnClicked)
 
-        # Create Solution GREEDY button
-        self.solutionGreedyBtn = QtWidgets.QPushButton()
-        self.solutionGreedyBtn.setFixedWidth(125)
-        self.solutionGreedyBtn.setFixedHeight(50)
-        self.solutionGreedyBtn.setText('Greedy solution')
-        self.solutionGreedyBtn.setObjectName('algoRenderBtn')
-        self.solutionGreedyBtn.clicked.connect(self.solutionGreedyBtnClicked)
-
         # Create Solve A_STAR button
         self.solverAStarBtn = QtWidgets.QPushButton()
         self.solverAStarBtn.setFixedWidth(125)
@@ -128,14 +83,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solverAStarBtn.setText('A* solver')
         self.solverAStarBtn.setObjectName('algoRenderBtn')
         self.solverAStarBtn.clicked.connect(self.solverAStarBtnClicked)
-
-        # Create Solution A_STAR button
-        self.solutionAStarBtn = QtWidgets.QPushButton()
-        self.solutionAStarBtn.setFixedWidth(125)
-        self.solutionAStarBtn.setFixedHeight(50)
-        self.solutionAStarBtn.setText('A* solution')
-        self.solutionAStarBtn.setObjectName('algoRenderBtn')
-        self.solutionAStarBtn.clicked.connect(self.solutionAStarBtnClicked)
 
         # Timer label
         self.timerLabel = QtWidgets.QLabel(f'{0} sec')
@@ -151,7 +98,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # Top layout
         self.topMenuLayout = QtWidgets.QHBoxLayout()
         self.topMenuLayout.addWidget(self.resetBtn, alignment=Qt.AlignLeft)
-        self.topMenuLayout.addWidget(self.newGameBtn, alignment=Qt.AlignCenter)
         self.topMenuLayout.addWidget(self.patternCombox, alignment=Qt.AlignRight)
 
         # Solve buttons
@@ -163,16 +109,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solverBtns.addWidget(self.solverAStarBtn, alignment=Qt.AlignCenter)
         # self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
 
-        # Solution buttons
-        self.solutionBtns = QtWidgets.QHBoxLayout()
-        self.solutionBtns.addWidget(self.solutionDFSBtn, alignment=Qt.AlignCenter)
-        self.solutionBtns.addWidget(self.solutionBFSBtn, alignment=Qt.AlignCenter)
-        self.solutionBtns.addWidget(self.solutionGreedyBtn, alignment=Qt.AlignCenter)
-        self.solutionBtns.addWidget(self.solutionAStarBtn, alignment=Qt.AlignCenter)
-
         self.bottomMenu = QtWidgets.QVBoxLayout()
         self.bottomMenu.addLayout(self.solverBtns)
-        self.bottomMenu.addLayout(self.solutionBtns)
+        # self.bottomMenu.addLayout(self.solutionBtns)
 
         # Vertical layout
         self.windowLayout = QtWidgets.QVBoxLayout()
@@ -189,10 +128,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def patternComboxHandler(self, itemID: int) -> None:
         """Zmeni board na vybrany board z combo boxu"""
 
-        global clickedCounter
-        clickedCounter = 0
-        self.updateCount()
-
         self.resetTimer()
 
         # Zmaz povodny board
@@ -200,12 +135,10 @@ class MainWindow(QtWidgets.QMainWindow):
         sip.delete(self.board)
 
         # Vytvor novy board
-        clickedCounter = 0
         self.board = Board(len(constants.patterns[itemID]),
                            len(constants.patterns[itemID][0]),
                            np.array(constants.patterns[itemID]))
         self.board.won.connect(self.gameWonHandler)
-        self.board.clickedSignal.connect(self.updateCount)
 
         for i in range(0, 10):
             QtWidgets.QApplication.processEvents()
@@ -218,10 +151,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def resetBtnClicked(self):
         """Vymaze self.board a prida novy fresh (xddd) object"""
 
-        global clickedCounter
-        clickedCounter = 0
-        self.updateCount()
-
         self.resetTimer()
 
         # Vytvor novy board
@@ -230,7 +159,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # Signal -> Slot relation musi byt definovany pre kazdy jeden board object!
         # Treba ho teda pridat VZDY PRI RESETOVANI boardu (nie v Board lebo by sme nevedeli callovat newGameBtn)
         newBoard.won.connect(self.gameWonHandler)
-        newBoard.clickedSignal.connect(self.updateCount)
 
         # Zmaz povodny board
         self.board.setParent(None)
@@ -254,117 +182,65 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timerLabel.setText('0. sec')
         self.timer.start()
 
-    def updateCount(self):
-        self.nClicksLabel.setText("Moves: " + str(clickedCounter))
-
     def gameWonHandler(self):
-        self.newGameBtn.show()
         self.timer.stop()
-
-    def newGameBtnClicked(self):
-        self.newGameBtn.hide()
-        self.resetBtnClicked()
-        self.timer.start()
 
     def solverDFSBtnClicked(self):
         startNode = Node(stateLights=self.board.matrix,
                          stateSwitches=np.zeros(self.board.pattern.shape, int),
                          parent=None, action=None, pathCost=0)
-        sol = dfs.dfsSolve(startNode, self.board, render=True)
-        self.showSolution(sol, render=False)
 
-        global clickedCounter
-        clickedCounter += len(sol)
-        self.updateCount()
+        start = timer()
+        sol = dfs.dfsSolve(startNode, self.board, render=False)
+        end = timer()
+
+        timeElapsed = end-start
+        self.showSolution(sol, timeElapsed, render=True)
 
     def solverBFSBtnClicked(self):
         startNode = Node(stateLights=self.board.matrix,
                          stateSwitches=np.zeros(self.board.pattern.shape, int),
                          parent=None, action=None, pathCost=0)
-        sol = bfs.bfsSolve(startNode, self.board, render=True)
-        self.showSolution(sol, render=False)
+        start = timer()
+        sol = bfs.bfsSolve(startNode, self.board, render=False)
+        end = timer()
 
-        global clickedCounter
-        clickedCounter += len(sol)
-        self.updateCount()
+        timeElapsed = end-start
+        self.showSolution(sol, timeElapsed, render=True)
 
     def solverGreedyBtnClicked(self):
         startNode = Node(stateLights=self.board.matrix,
                          stateSwitches=np.zeros(self.board.pattern.shape, int),
                          parent=None, action=None, pathCost=0)
-        sol = greedy.greedySolve(startNode, self.board, render=True)
-        self.showSolution(sol, render=False)
+        start = timer()
+        sol = greedy.greedySolve(startNode, self.board, render=False)
+        end = timer()
 
-        global clickedCounter
-        clickedCounter += len(sol)
-        self.updateCount()
+        timeElapsed = end-start
+        self.showSolution(sol, timeElapsed, render=True)
 
     def solverAStarBtnClicked(self):
         startNode = a_star.Node(stateLights=self.board.matrix,
                                 stateSwitches=np.zeros(self.board.pattern.shape, int),
                                 parent=None, action=None, pathCost=0)
-        sol = a_star.aStarSolve(startNode, self.board, render=True)
-        self.showSolution(sol, render=False)
 
-        global clickedCounter
-        clickedCounter += len(sol)
-        self.updateCount()
-
-    def solutionDFSBtnClicked(self):
-        startNode = Node(stateLights=self.board.matrix,
-                         stateSwitches=np.zeros(self.board.pattern.shape, int),
-                         parent=None, action=None, pathCost=0)
-
-        sol = dfs.dfsSolve(startNode, self.board, render=False)
-        self.showSolution(sol, render=True)
-
-        global clickedCounter
-        clickedCounter += len(sol)
-        self.updateCount()
-
-    def solutionBFSBtnClicked(self):
-        startNode = Node(stateLights=self.board.matrix,
-                         stateSwitches=np.zeros(self.board.pattern.shape, int),
-                         parent=None, action=None, pathCost=0)
-
-        sol = bfs.bfsSolve(startNode, self.board, render=False)
-        self.showSolution(sol, render=True)
-
-        global clickedCounter
-        clickedCounter += len(sol)
-        self.updateCount()
-
-    def solutionGreedyBtnClicked(self):
-        startNode = Node(stateLights=self.board.matrix,
-                         stateSwitches=np.zeros(self.board.pattern.shape, int),
-                         parent=None, action=None, pathCost=0)
-
-        sol = greedy.greedySolve(startNode, self.board, render=False)
-        self.showSolution(sol, render=True)
-
-        global clickedCounter
-        clickedCounter += len(sol)
-        self.updateCount()
-
-    def solutionAStarBtnClicked(self):
-        startNode = a_star.Node(stateLights=self.board.matrix,
-                                stateSwitches=np.zeros(self.board.pattern.shape, int),
-                                parent=None, action=None, pathCost=0)
-
+        start = timer()
         sol = a_star.aStarSolve(startNode, self.board, render=False)
-        self.showSolution(sol, render=True)
+        end = timer()
 
-        global clickedCounter
-        clickedCounter += len(sol)
-        self.updateCount()
+        timeElapsed = end-start
+        self.showSolution(sol, timeElapsed, render=True)
 
-    def showSolution(self, sol: list, render: bool) -> None:
-        print(f'Number of actions: {len(sol)}')
-        print(f'Actions: {sol}')
+    def showSolution(self, sol: tuple[list, int, int], timeElapsed: float, render: bool) -> None:
+        print(f'Solution at depth {len(sol[0])}.')
+        print(f'Nodes expanded: {sol[1]}')
+        print(f'Nodes generated: {sol[2]}')
+        print(f'Time elapsed: {timeElapsed}')
+        print(f'Actions: {sol[0]}')
         print()
 
         if render:
-            self.board.renderSolution(sol)
+            self.board.renderSolution(sol[0])
 
 
 class Board(QtWidgets.QWidget):
@@ -405,10 +281,6 @@ class Board(QtWidgets.QWidget):
         Definovany tu v Board, aby sme vedeli ziskat poziciu square v board grid layoute.
         """
 
-        global clickedCounter
-        clickedCounter = clickedCounter + 1
-        self.clickedSignal.emit()
-
         # Ziskaj square a jeho poziciu v gride
         square = self.sender()
         idx = self.layout().indexOf(square)
@@ -448,7 +320,6 @@ class Board(QtWidgets.QWidget):
 
         if sum1 == 0:
             self.won.emit()
-            clickedCounter = 0
 
     def renderState(self, stateLights: np.ndarray, stateSwitches: np.ndarray, ms: int) -> None:
 
@@ -474,13 +345,9 @@ class Board(QtWidgets.QWidget):
 
     def algoRender(self, correctTile, ms: int) -> None:
 
-        # for i in listofactions:
-
         QtTest.QTest.qWait(ms)
 
         pos = correctTile
-        # print(correctTile)
-        # print(pos[1])
 
         # Zisti ktore policka boly affectnute klikom
         squaresAffected = []
@@ -516,7 +383,6 @@ class Board(QtWidgets.QWidget):
 
         if sum1 == 0:
             self.won.emit()
-            clickedCounter = 0
 
     def renderSolution(self, action: list) -> None:
         for (r, c) in action:
