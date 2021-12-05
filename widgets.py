@@ -1,5 +1,3 @@
-
-
 from PyQt5 import QtWidgets, QtGui, QtCore, sip
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
@@ -45,9 +43,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.patternCombox.addItem('5x5 - 1')
         self.patternCombox.addItem('5x5 - 3')
         self.patternCombox.addItem('5x5 - 4')
+        self.patternCombox.addItem('5x5 - 5')
         self.patternCombox.addItem('5x5 - 6')
+        self.patternCombox.addItem('5x5 - 6')
+        self.patternCombox.addItem('5x5 - 7')
         self.patternCombox.addItem('2x3 - 1')
-        self.patternCombox.addItem('2x3 - 3')
+        self.patternCombox.addItem('2x3 - 2')
         self.patternCombox.addItem('2x3 - 3')
         self.patternCombox.setObjectName('patternBtn')
         self.patternCombox.currentIndexChanged.connect(self.patternComboxHandler)
@@ -189,13 +190,12 @@ class MainWindow(QtWidgets.QMainWindow):
         startNode = Node(stateLights=self.board.matrix,
                          stateSwitches=np.zeros(self.board.pattern.shape, int),
                          parent=None, action=None, pathCost=0)
-
         start = timer()
-        sol = dfs.dfsSolve(startNode, self.board, render=False)
+        sol = dfs.dfsSolve(startNode, self.board, render=True)
         end = timer()
 
         timeElapsed = end-start
-        self.showSolution(sol, timeElapsed, render=True)
+        self.showSolution(sol, timeElapsed, render=False)
 
     def solverBFSBtnClicked(self):
         startNode = Node(stateLights=self.board.matrix,
@@ -225,11 +225,11 @@ class MainWindow(QtWidgets.QMainWindow):
                                 parent=None, action=None, pathCost=0)
 
         start = timer()
-        sol = a_star.aStarSolve(startNode, self.board, render=False)
+        sol = a_star.aStarSolve(startNode, self.board, render=True)
         end = timer()
 
         timeElapsed = end-start
-        self.showSolution(sol, timeElapsed, render=True)
+        self.showSolution(sol, timeElapsed, render=False)
 
     def showSolution(self, sol: tuple[list, int, int], timeElapsed: float, render: bool) -> None:
         print(f'Solution at depth {len(sol[0])}.')

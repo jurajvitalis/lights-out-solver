@@ -6,7 +6,7 @@ import widgets
 
 if __name__ == "__main__":
 
-    sys.setrecursionlimit(5000)
+    sys.setrecursionlimit(20000)
 
     # Create application
     app = QtWidgets.QApplication(sys.argv)

@@ -1,6 +1,7 @@
 import constants
 from PyQt5 import QtWidgets
 from graph_node import Node
+from timeit import default_timer as timer
 
 
 def dfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> tuple[list, int, int]:
@@ -24,6 +25,7 @@ def dfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> tuple[l
             marked.append(node.stateLights.tolist())
 
             # Prida susedne nody do queue
+            start = timer()
             for new_node in node.getAdjacentNodes():
                 generatedNodes += 1
 
@@ -43,3 +45,6 @@ def dfsSolve(startNode: Node, board: QtWidgets.QWidget, render: bool) -> tuple[l
                         return actions, expandedNodes, generatedNodes
 
                     stack.append(new_node)
+            # end = timer()
+            # timeElapsed = end - start
+            # print(f'Generateing adjacent nodes: {timeElapsed}')
