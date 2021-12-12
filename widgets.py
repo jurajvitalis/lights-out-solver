@@ -105,7 +105,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solverBtns = QtWidgets.QHBoxLayout()
         # self.bottomLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignLeft)
         self.solverBtns.addWidget(self.solverDFSBtn, alignment=Qt.AlignCenter)
-        self.solverBtns.addWidget(self.solverBFSBtn, alignment=Qt.AlignCenter)
+        # self.solverBtns.addWidget(self.solverBFSBtn, alignment=Qt.AlignCenter)
         self.solverBtns.addWidget(self.solverGreedyBtn, alignment=Qt.AlignCenter)
         self.solverBtns.addWidget(self.solverAStarBtn, alignment=Qt.AlignCenter)
         # self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
@@ -202,22 +202,22 @@ class MainWindow(QtWidgets.QMainWindow):
                          stateSwitches=np.zeros(self.board.pattern.shape, int),
                          parent=None, action=None, pathCost=0)
         start = timer()
-        sol = bfs.bfsSolve(startNode, self.board, render=False)
+        sol = bfs.bfsSolve(startNode, self.board, render=True)
         end = timer()
 
         timeElapsed = end-start
-        self.showSolution(sol, timeElapsed, render=True)
+        self.showSolution(sol, timeElapsed, render=False)
 
     def solverGreedyBtnClicked(self):
         startNode = Node(stateLights=self.board.matrix,
                          stateSwitches=np.zeros(self.board.pattern.shape, int),
                          parent=None, action=None, pathCost=0)
         start = timer()
-        sol = greedy.greedySolve(startNode, self.board, render=False)
+        sol = greedy.greedySolve(startNode, self.board, render=True)
         end = timer()
 
         timeElapsed = end-start
-        self.showSolution(sol, timeElapsed, render=True)
+        self.showSolution(sol, timeElapsed, render=False)
 
     def solverAStarBtnClicked(self):
         startNode = a_star.Node(stateLights=self.board.matrix,
