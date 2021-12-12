@@ -4,17 +4,17 @@ V našom zadaní máme implementované riešenie hry Lights Out pomocou 3 vyhľa
 
 ## Reprezentácia stavu hry
 
-Kedže v nasledujúcich algoritmoch sa vyžaduje vyhľadávanie v grafe, pokladali sme za potrebné definovať si štruktúru Node, ktorá reprezentuje:
+Kedže v nasledujúcich algoritmoch sa vyžaduje vyhľadávanie v  stavovom priestore (grafe), pokladali sme za potrebné definovať si štruktúru Node, ktorá obsahuje:
 
 - Stav hry (Rozpoloženie zasvietených políčok)
 - Odkaz na rodiča (Stav, z ktorého sme dostali aktuálny stav)
-- Akcia, ktora bola vykonaná na rodičovskom stave
-- $h(n)$ - Hodnota heuristickej funkcie 
-- $g(n)$ - Hodnota cenovej funkcie (vzdialenosť od počiatočného stavu)
+- Akciu, ktora bola vykonaná na rodičovskom stave
+- $h(n)$ - Hodnotu heuristickej funkcie 
+- $g(n)$ - Hodnotu cenovej funkcie (vzdialenosť od počiatočného stavu)
 
 ## DFS
 
-Algoritmus DFS máme implementovaný iteratívne, zásobník reprezentujeme pomocou dátovej štruktúry **stack**.
+Algoritmus DFS máme implementovaný iteratívne, zásobník je reprezentovaný pomocou dátovej štruktúry **stack**.
 
 DFS spočíva v brute-force prístupe, ktorý prechádza stavový priestor (graf) nasledovným spôsobom:
 
@@ -24,7 +24,7 @@ DFS spočíva v brute-force prístupe, ktorý prechádza stavový priestor (graf
 
 ## Greedy
 
-Algoritmus Greedy máme implementovaný iteratívne, zásobník reprezentujeme pomocou dátovej štruktúry **priority queue**, ktorú zoraďujeme na základe heuristickej funkcie $h(n)$.
+Algoritmus Greedy máme implementovaný iteratívne, zásobník je reprezentovaný pomocou dátovej štruktúry **priority queue**, ktorú zoraďujeme na základe heuristickej funkcie $h(n)$.
 
 Heuristická funkcia vyzerá následovne:
 
@@ -38,7 +38,7 @@ Algoritmus prechádza stavový priestor (graf) nasledovným spôsobom:
 
 ## A*
 
-Algoritmus Hladového vyhľadávania máme implementovaný iteratívne, zásobník reprezentujeme pomocou dátovej štruktúry **priority queue**, ktorú zoraďujeme na základe funkcie $f(n)$.
+Algoritmus A* máme implementovaný iteratívne, zásobník je reprezentovaný pomocou dátovej štruktúry **priority queue**, ktorú zoraďujeme na základe funkcie $f(n)$.
 
 Funkcia $f(n)$ vyzerá následovne:
 
