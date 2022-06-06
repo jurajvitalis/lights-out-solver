@@ -1,5 +1,7 @@
 # Lights out puzzle solver
 
+![Screenshot](/assets/readme-img.png)
+
 A GUI application to solve custom 2x3 / 5x5 lights out puzzles (https://en.wikipedia.org/wiki/Lights_Out_(game)).
 
 The solver is based on search algorithms, 4 methods in total are implemented - DFS, BFS, Greedy search, A\*. For optimal and the fastest solve, choose A\*.
