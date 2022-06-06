@@ -1,53 +1,27 @@
-# Lights Out
+# Lights out puzzle solver
 
-V našom zadaní máme implementované riešenie hry Lights Out pomocou 3 vyhľadávacích algoritmov.
+A GUI application to solve custom 2x3 / 5x5 lights out puzzles (https://en.wikipedia.org/wiki/Lights_Out_(game)).
 
-## Reprezentácia stavu hry
+The solver is based on search algorithms, 4 methods in total are implemented - DFS, BFS, Greedy search, A\*. For optimal and the fastest solve, choose A\*.
 
-Kedže v nasledujúcich algoritmoch sa vyžaduje vyhľadávanie v  stavovom priestore (grafe), pokladali sme za potrebné definovať si štruktúru Node, ktorá obsahuje:
+## How to use the program
 
-- Stav hry (Rozpoloženie zasvietených políčok)
-- Odkaz na rodiča (Stav, z ktorého sme dostali aktuálny stav)
-- Akciu, ktora bola vykonaná na rodičovskom stave
-- $h(n)$ - Hodnotu heuristickej funkcie 
-- $g(n)$ - Hodnotu cenovej funkcie (vzdialenosť od počiatočného stavu)
+1. ```
+   python __main__.py
+   ```
 
-## DFS
+2. Choose a puzzle to solve, or create a new one by clicking on the play tiles
 
-Algoritmus DFS máme implementovaný iteratívne, zásobník je reprezentovaný pomocou dátovej štruktúry **stack**.
+3. Click DFS/BFS/Greedy/A\* **solver**
 
-DFS spočíva v brute-force prístupe, ktorý prechádza stavový priestor (graf) nasledovným spôsobom:
+4. The solution is displayed in both the playing screen (purple dots) and the console
 
-1. Vyberie si posledne pridaný stav zo zásobnika
-2. Ak stav ešte nebol expandovaný, expanduje ho a označí ako už expandovaný
-   - Ak susedný stav, ktorý algoritmus našiel expandovaním predstavuje finálny stav hry, algoritmus našiel riešenie
+5. Click **RESET** to return to the unsolved puzzle
 
-## Greedy
+## Dependencies
 
-Algoritmus Greedy máme implementovaný iteratívne, zásobník je reprezentovaný pomocou dátovej štruktúry **priority queue**, ktorú zoraďujeme na základe heuristickej funkcie $h(n)$.
+Project is created with:
 
-Heuristická funkcia vyzerá následovne:
-
-​	$$h(n) = Pocet \space\space zasvietenych \space\space policok$$
-
-Algoritmus prechádza stavový priestor (graf) nasledovným spôsobom:
-
-1. Vyberie stav s minimálnou hodnotou $h(n)$ zo zásobnika
-2. Ak stav predstavuje finálny stav hry, algoritmus našiel riešenie
-3. Ak stav ešte nebol expandovaný, expanduje ho a označí ako už expandovaný
-
-## A*
-
-Algoritmus A* máme implementovaný iteratívne, zásobník je reprezentovaný pomocou dátovej štruktúry **priority queue**, ktorú zoraďujeme na základe funkcie $f(n)$.
-
-Funkcia $f(n)$ vyzerá následovne:
-
-$$f(n) = h(n) + g(n)$$
-
-$$f(n) = Pocet \space\space zasvietenych \space\space policok + vzdialenost \space\space od \space\space pociatocneho \space\space stavu$$
-
-Algoritmus prechádza stavový priestor (graf) nasledovným spôsobom:
-
-1. Vyberie stav s minimálnou hodnotou $f(n)$ zo zásobnika
-2. Ak stav predstavuje finálny stav hry, algoritmus našiel riešenie
-3. Ak stav ešte nebol expandovaný, expanduje ho a označí ako už expandovaný
+- Python 3.9.7
+- Numpy 1.21.2
+- Pyqt5 5.15.6

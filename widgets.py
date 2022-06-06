@@ -105,7 +105,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.solverBtns = QtWidgets.QHBoxLayout()
         # self.bottomLayout.addWidget(self.nClicksLabel, alignment=Qt.AlignLeft)
         self.solverBtns.addWidget(self.solverDFSBtn, alignment=Qt.AlignCenter)
-        # self.solverBtns.addWidget(self.solverBFSBtn, alignment=Qt.AlignCenter)
+        self.solverBtns.addWidget(self.solverBFSBtn, alignment=Qt.AlignCenter)
         self.solverBtns.addWidget(self.solverGreedyBtn, alignment=Qt.AlignCenter)
         self.solverBtns.addWidget(self.solverAStarBtn, alignment=Qt.AlignCenter)
         # self.bottomLayout.addWidget(self.timerLabel, alignment=Qt.AlignRight)
