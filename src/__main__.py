@@ -1,5 +1,3 @@
-import threading
-
 from PyQt5 import QtWidgets
 import sys
 import widgets

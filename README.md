@@ -4,26 +4,37 @@
 
 A GUI application to solve custom 2x3 / 5x5 lights out puzzles (https://en.wikipedia.org/wiki/Lights_Out_(game)).
 
-The solver is based on search algorithms, 4 methods in total are implemented - DFS, BFS, Greedy search, A\*. For optimal and the fastest solve, choose A\*.
+The solver is search-algorithm based, 4 methods in total are implemented - DFS, BFS, Greedy search, A\*. A* provides the optimal solution.
 
 ## How to use the program
 
-1. ```
+1. Download the executable from releases and run it
+
+2. Choose a puzzle to solve from the drop down menu, or create a new one by clicking on the tiles
+
+3. Choose the algorithm used to solve the puzzle - DFS / BFS / Greedy / A*
+
+4. To reset the puzzle to the original state, click **RESET**
+
+
+
+To run it as a python script:
+
+1. Build the conda environemnt from *environment.yml*
+   
+   ```bash
+   conda env create --name envname --file=environment.yml
+   ```
+
+2. Run the script
+   
+   ```bash
    python __main__.py
    ```
 
-2. Choose a puzzle to solve, or create a new one by clicking on the play tiles
-
-3. Click DFS/BFS/Greedy/A\* **solver**
-
-4. The solution is displayed in both the playing screen (purple dots) and the console
-
-5. Click **RESET** to return to the unsolved puzzle
-
 ## Dependencies
-
-Project is created with:
 
 - Python 3.9.7
 - Numpy 1.21.2
 - Pyqt5 5.15.6
+- All dependencies listed in *environment.yml*

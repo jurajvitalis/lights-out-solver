@@ -1,3 +1,6 @@
 __pycache__/
 .idea/
 .ignore/
+build/
+dist/
+src/__main__.spec
