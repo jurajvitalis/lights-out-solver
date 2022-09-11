@@ -18,7 +18,7 @@ The solver is search-algorithm based, 4 methods in total are implemented - DFS, 
 
 To run it as a python script:
 
-1. Build a conda environment from *environment.yml*
+1. Build a conda environment from `environment.yml`
    
    ```bash
    conda env create --name envname --file=environment.yml
@@ -35,4 +35,4 @@ To run it as a python script:
 - Python 3.9.7
 - Numpy 1.21.2
 - Pyqt5 5.15.6
-- All dependencies listed in *environment.yml*
+- All dependencies listed in `environment.yml`
